@@ -40,7 +40,7 @@ final class ProductImageActionHandler {
     ///   - siteID: the ID of a site/store where the product belongs to.
     ///   - product: the product whose image statuses and actions are of concern.
     ///   - queue: the queue where the update callbacks are called on. Default to be the main queue.
-    init(siteID: Int64, product: Product, queue: DispatchQueue = .main) {
+    init(siteID: Int64, product: ProductFormDataModel, queue: DispatchQueue = .main) {
         self.siteID = siteID
         self.productID = product.productID
         self.queue = queue

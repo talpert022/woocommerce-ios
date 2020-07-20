@@ -1,9 +1,81 @@
 import Yosemite
 
-/// Provides data for product form UI, and handles product editing actions.
-final class ProductFormViewModel {
+protocol ProductFormViewModelProtocol {
     /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
-    var observableProduct: Observable<Product> {
+    var observableProduct: Observable<ProductFormDataModel> { get }
+
+    /// Emits product name on change.
+    var productName: Observable<String> { get }
+
+    /// Emits a boolean of whether the product has unsaved changes for remote update.
+    var isUpdateEnabled: Observable<Bool> { get }
+
+    /// Creates actions available on the bottom sheet.
+    var actionsFactory: ProductFormActionsFactory { get }
+
+    var productValue: ProductFormDataModel { get }
+
+    var password: String? { get }
+
+    // Unsaved changes
+
+    func hasUnsavedChanges() -> Bool
+
+    func hasProductChanged() -> Bool
+
+    func hasPasswordChanged() -> Bool
+
+    func canViewProductInStore() -> Bool
+
+    // Update actions
+
+    func updateName(_ name: String)
+
+    func updateImages(_ images: [ProductImage])
+
+    func updateDescription(_ newDescription: String)
+
+    func updatePriceSettings(regularPrice: String?,
+                             salePrice: String?,
+                             dateOnSaleStart: Date?,
+                             dateOnSaleEnd: Date?,
+                             taxStatus: ProductTaxStatus,
+                             taxClass: TaxClass?)
+
+    func updateInventorySettings(sku: String?,
+                                 manageStock: Bool,
+                                 soldIndividually: Bool,
+                                 stockQuantity: Int?,
+                                 backordersSetting: ProductBackordersSetting?,
+                                 stockStatus: ProductStockStatus?)
+
+    func updateShippingSettings(weight: String?, dimensions: ProductDimensions, shippingClass: ProductShippingClass?)
+
+    func updateProductCategories(_ categories: [ProductCategory])
+
+    func updateProductTags(_ tags: [ProductTag])
+
+    func updateBriefDescription(_ briefDescription: String)
+
+    func updateSKU(_ sku: String?)
+
+    func updateGroupedProductIDs(_ groupedProductIDs: [Int64])
+
+    func updateProductSettings(_ settings: ProductSettings)
+
+    func updateExternalLink(externalURL: String?, buttonText: String)
+
+    // Reset actions
+
+    func resetProduct(_ product: Product)
+
+    func resetPassword(_ password: String?)
+}
+
+/// Provides data for product form UI, and handles product editing actions.
+final class ProductFormViewModel: ProductFormViewModelProtocol {
+    /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
+    var observableProduct: Observable<ProductFormDataModel> {
         productSubject
     }
 
@@ -17,10 +89,14 @@ final class ProductFormViewModel {
         isUpdateEnabledSubject
     }
 
+    var productValue: ProductFormDataModel {
+        product
+    }
+
     /// Creates actions available on the bottom sheet.
     private(set) var actionsFactory: ProductFormActionsFactory
 
-    private let productSubject: PublishSubject<Product> = PublishSubject<Product>()
+    private let productSubject: PublishSubject<ProductFormDataModel> = PublishSubject<ProductFormDataModel>()
     private let productNameSubject: PublishSubject<String> = PublishSubject<String>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
 

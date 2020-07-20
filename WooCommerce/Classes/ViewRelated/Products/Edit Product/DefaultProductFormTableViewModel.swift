@@ -12,7 +12,7 @@ struct DefaultProductFormTableViewModel: ProductFormTableViewModel {
     //
     var siteTimezone: TimeZone = TimeZone.siteTimezone
 
-    init(product: Product,
+    init(product: ProductFormDataModel,
          actionsFactory: ProductFormActionsFactory,
          currency: String,
          currencyFormatter: CurrencyFormatter = CurrencyFormatter()) {
@@ -23,17 +23,17 @@ struct DefaultProductFormTableViewModel: ProductFormTableViewModel {
 }
 
 private extension DefaultProductFormTableViewModel {
-    mutating func configureSections(product: Product, actionsFactory: ProductFormActionsFactory) {
+    mutating func configureSections(product: ProductFormDataModel, actionsFactory: ProductFormActionsFactory) {
         sections = [.primaryFields(rows: primaryFieldRows(product: product, actions: actionsFactory.primarySectionActions())),
-                    .settings(rows: settingsRows(product: product, actions: actionsFactory.settingsSectionActions()))]
+                    .settings(rows: settingsRows(productData: product, actions: actionsFactory.settingsSectionActions()))]
             .filter { $0.isNotEmpty }
     }
 
-    func primaryFieldRows(product: Product, actions: [ProductFormEditAction]) -> [ProductFormSection.PrimaryFieldRow] {
+    func primaryFieldRows(product: ProductFormDataModel, actions: [ProductFormEditAction]) -> [ProductFormSection.PrimaryFieldRow] {
         return actions.map { action in
             switch action {
             case .images:
-                return .images(product: product)
+                return .images
             case .name:
                 return .name(name: product.name)
             case .description:
@@ -41,6 +41,17 @@ private extension DefaultProductFormTableViewModel {
             default:
                 fatalError("Unexpected action in the primary section: \(action)")
             }
+        }
+    }
+
+    func settingsRows(productData product: ProductFormDataModel, actions: [ProductFormEditAction]) -> [ProductFormSection.SettingsRow] {
+        switch product {
+        case let product as Product:
+            return settingsRows(product: product, actions: actions)
+        case let product as ProductVariation:
+            return settingsRows(productVariation: product, actions: actions)
+        default:
+            fatalError("Unexpected product form data model: \(type(of: product))")
         }
     }
 
@@ -72,10 +83,25 @@ private extension DefaultProductFormTableViewModel {
             }
         }
     }
+
+    func settingsRows(productVariation: ProductVariation, actions: [ProductFormEditAction]) -> [ProductFormSection.SettingsRow] {
+        return actions.map { action in
+            switch action {
+            case .priceSettings:
+                return .price(viewModel: priceSettingsRow(product: productVariation))
+//            case .shippingSettings:
+//                return .shipping(viewModel: shippingSettingsRow(product: product))
+//            case .inventorySettings:
+//                return .inventory(viewModel: inventorySettingsRow(product: product))
+            default:
+                fatalError("Unexpected action in the settings section: \(action)")
+            }
+        }
+    }
 }
 
 private extension DefaultProductFormTableViewModel {
-    func priceSettingsRow(product: Product) -> ProductFormSection.SettingsRow.ViewModel {
+    func priceSettingsRow(product: ProductFormDataModel) -> ProductFormSection.SettingsRow.ViewModel {
         let icon = UIImage.priceImage
 
         var priceDetails = [String]()

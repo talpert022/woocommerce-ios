@@ -3,6 +3,75 @@ import UIKit
 import WordPressUI
 import Yosemite
 
+protocol ProductFormDataModel {
+    var siteID: Int64 { get }
+    var productID: Int64 { get }
+    var name: String { get }
+    var description: String? { get }
+    var shortDescription: String? { get }
+    var permalink: String { get }
+
+    // Images
+    var images: [ProductImage] { get }
+
+    var regularPrice: String? { get }
+    var salePrice: String? { get }
+    var dateOnSaleStart: Date? { get }
+    var dateOnSaleEnd: Date? { get }
+    var taxStatusKey: String { get }
+    var taxClass: String? { get }
+
+    // Shipping
+    var weight: String? { get }
+    var dimensions: ProductDimensions { get }
+    var shippingClass: String? { get }
+
+    // Inventory
+    var sku: String? { get }
+}
+
+extension ProductFormDataModel {
+    var productTaxStatus: ProductTaxStatus {
+        return ProductTaxStatus(rawValue: taxStatusKey)
+    }
+
+    var imageStatuses: [ProductImageStatus] {
+        return images.map({ ProductImageStatus.remote(image: $0) })
+    }
+
+    /// Returns the full description without the HTML tags and leading/trailing white spaces and new lines.
+    var trimmedFullDescription: String? {
+        guard let description = description else {
+            return nil
+        }
+        return description.removedHTMLTags.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+extension Product: ProductFormDataModel {
+    var description: String? {
+        fullDescription
+    }
+
+    var shortDescription: String? {
+        briefDescription
+    }
+}
+extension ProductVariation: ProductFormDataModel {
+
+    var name: String {
+        attributes.map({ $0.option }).joined(separator: " - ")
+    }
+
+    var shortDescription: String? {
+        nil
+    }
+
+    var images: [ProductImage] {
+        [image].compactMap { $0 }
+    }
+}
+
 /// The entry UI for adding/editing a Product.
 final class ProductFormViewController: UIViewController {
 
@@ -16,9 +85,9 @@ final class ProductFormViewController: UIViewController {
         return keyboardFrameObserver
     }()
 
-    private let viewModel: ProductFormViewModel
-    private var product: Product {
-        viewModel.product
+    private let viewModel: ProductFormViewModelProtocol
+    private var product: ProductFormDataModel {
+        viewModel.productValue
     }
 
     private var password: String? {
@@ -48,7 +117,7 @@ final class ProductFormViewController: UIViewController {
     private var cancellableProductName: ObservationToken?
     private var cancellableUpdateEnabled: ObservationToken?
 
-    init(product: Product,
+    init(product: ProductFormDataModel,
          currency: String = CurrencySettings.shared.symbol(from: CurrencySettings.shared.currencyCode),
          presentationStyle: PresentationStyle,
          isEditProductsRelease2Enabled: Bool,
@@ -61,10 +130,16 @@ final class ProductFormViewController: UIViewController {
                                                                    product: product)
         self.productUIImageLoader = DefaultProductUIImageLoader(productImageActionHandler: productImageActionHandler,
                                                                 phAssetImageLoaderProvider: { PHImageManager.default() })
-        self.viewModel = ProductFormViewModel(product: product,
-                                              productImageActionHandler: productImageActionHandler,
-                                              isEditProductsRelease2Enabled: isEditProductsRelease2Enabled,
-                                              isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
+        switch product {
+        case let product as Product:
+            self.viewModel = ProductFormViewModel(product: product,
+                                                  productImageActionHandler: productImageActionHandler,
+                                                  isEditProductsRelease2Enabled: isEditProductsRelease2Enabled,
+                                                  isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
+        default:
+            fatalError()
+        }
+
         self.tableViewModel = DefaultProductFormTableViewModel(product: product,
                                                                actionsFactory: viewModel.actionsFactory,
                                                                currency: currency)
@@ -215,6 +290,9 @@ private extension ProductFormViewController {
 private extension ProductFormViewController {
     func observeProduct() {
         cancellableProduct = viewModel.observableProduct.subscribe { [weak self] product in
+            guard let product = product as? Product else {
+                return
+            }
             self?.onProductUpdated(product: product)
         }
     }
@@ -359,6 +437,10 @@ private extension ProductFormViewController {
     }
 
     func dispatchUpdateProductAndPasswordAction() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let group = DispatchGroup()
 
         // Updated Product
@@ -445,6 +527,10 @@ private extension ProductFormViewController {
     }
 
     func displayProductSettings() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let viewController = ProductSettingsViewController(product: product, password: password, completion: { [weak self] (productSettings) in
             guard let self = self else {
                 return
@@ -555,11 +641,15 @@ extension ProductFormViewController: UITableViewDelegate {
                 break
             case .variations:
                 // TODO-2509 Edit Product M3 analytics
+                guard let product = product as? Product else {
+                    return
+                }
                 guard product.variations.isNotEmpty else {
                     return
                 }
                 let variationsViewController = ProductVariationsViewController(siteID: product.siteID,
-                                                                               productID: product.productID)
+                                                                               productID: product.productID,
+                                                                               isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
                 show(variationsViewController, sender: self)
             }
         }
@@ -608,6 +698,11 @@ extension ProductFormViewController: KeyboardScrollable {
 //
 private extension ProductFormViewController {
     func showProductImages() {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         let imagesViewController = ProductImagesViewController(product: product,
                                                                productImageActionHandler: productImageActionHandler,
                                                                productUIImageLoader: productUIImageLoader) { [weak self] images, hasChangedData in
@@ -677,7 +772,7 @@ private extension ProductFormViewController {
         defer {
             navigationController?.popViewController(animated: true)
         }
-        let hasChangedData = newDescription != product.fullDescription
+        let hasChangedData = newDescription != product.description
         ServiceLocator.analytics.track(.productDescriptionDoneButtonTapped, withProperties: ["has_changed_data": hasChangedData])
 
         guard hasChangedData else {
@@ -691,6 +786,11 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editPriceSettings() {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         let priceSettingsViewController = ProductPriceSettingsViewController(product: product) { [weak self]
             (regularPrice, salePrice, dateOnSaleStart, dateOnSaleEnd, taxStatus, taxClass) in
             self?.onEditPriceSettingsCompletion(regularPrice: regularPrice,
@@ -740,6 +840,11 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editShippingSettings() {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         let shippingSettingsViewController = ProductShippingSettingsViewController(product: product) { [weak self] (weight, dimensions, shippingClass) in
             self?.onEditShippingSettingsCompletion(weight: weight, dimensions: dimensions, shippingClass: shippingClass)
         }
@@ -753,7 +858,7 @@ private extension ProductFormViewController {
         let hasChangedData: Bool = {
             weight != self.product.weight ||
                 dimensions != self.product.dimensions ||
-                shippingClass != product.productShippingClass
+                shippingClass?.slug != product.shippingClass
         }()
         ServiceLocator.analytics.track(.productShippingSettingsDoneButtonTapped, withProperties: ["has_changed_data": hasChangedData])
 
@@ -768,6 +873,11 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editInventorySettings() {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         let inventorySettingsViewController = ProductInventorySettingsViewController(product: product) { [weak self] data in
             self?.onEditInventorySettingsCompletion(data: data)
         }
@@ -775,6 +885,11 @@ private extension ProductFormViewController {
     }
 
     func onEditInventorySettingsCompletion(data: ProductInventoryEditableData) {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         defer {
             navigationController?.popViewController(animated: true)
         }
@@ -808,7 +923,7 @@ private extension ProductFormViewController {
         defer {
             navigationController?.popViewController(animated: true)
         }
-        let hasChangedData = newBriefDescription != product.briefDescription
+        let hasChangedData = newBriefDescription != product.shortDescription
         ServiceLocator.analytics.track(.productShortDescriptionDoneButtonTapped, withProperties: ["has_changed_data": hasChangedData])
 
         guard hasChangedData else {
@@ -823,6 +938,10 @@ private extension ProductFormViewController {
 
 private extension ProductFormViewController {
     func editCategories() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let categoryListViewController = ProductCategoryListViewController(product: product) { [weak self] (categories) in
             self?.onEditCategoriesCompletion(categories: categories)
         }
@@ -830,6 +949,10 @@ private extension ProductFormViewController {
     }
 
     func onEditCategoriesCompletion(categories: [ProductCategory]) {
+        guard let product = product as? Product else {
+            return
+        }
+
         defer {
             navigationController?.popViewController(animated: true)
         }
@@ -859,6 +982,11 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editSKU() {
+        // TODO-jc
+        guard let product = product as? Product else {
+            return
+        }
+
         let viewController = ProductInventorySettingsViewController(product: product, formType: .sku) { [weak self] data in
             self?.onEditSKUCompletion(sku: data.sku)
         }
@@ -882,6 +1010,10 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editGroupedProducts() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let viewController = GroupedProductsViewController(product: product) { [weak self] groupedProductIDs in
             self?.onEditGroupedProductsCompletion(groupedProductIDs: groupedProductIDs)
         }
@@ -889,6 +1021,10 @@ private extension ProductFormViewController {
     }
 
     func onEditGroupedProductsCompletion(groupedProductIDs: [Int64]) {
+        guard let product = product as? Product else {
+            return
+        }
+
         defer {
             navigationController?.popViewController(animated: true)
         }
@@ -905,6 +1041,10 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editExternalLink() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let viewController = ProductExternalLinkViewController(product: product) { [weak self] externalURL, buttonText in
             self?.onEditExternalLinkCompletion(externalURL: externalURL, buttonText: buttonText)
         }
@@ -912,6 +1052,10 @@ private extension ProductFormViewController {
     }
 
     func onEditExternalLinkCompletion(externalURL: String?, buttonText: String) {
+        guard let product = product as? Product else {
+            return
+        }
+
         defer {
             navigationController?.popViewController(animated: true)
         }
