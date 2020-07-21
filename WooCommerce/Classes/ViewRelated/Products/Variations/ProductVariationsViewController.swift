@@ -65,10 +65,12 @@ final class ProductVariationsViewController: UIViewController {
     private let productID: Int64
 
     private let imageService: ImageService = ServiceLocator.imageService
+    private let isEditProductsRelease3Enabled: Bool
 
-    init(siteID: Int64, productID: Int64) {
+    init(siteID: Int64, productID: Int64, isEditProductsRelease3Enabled: Bool) {
         self.siteID = siteID
         self.productID = productID
+        self.isEditProductsRelease3Enabled = isEditProductsRelease3Enabled
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -226,6 +228,19 @@ extension ProductVariationsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        if isEditProductsRelease3Enabled {
+            let productVariation = resultsController.object(at: indexPath)
+
+            let currencyCode = CurrencySettings.shared.currencyCode
+            let currency = CurrencySettings.shared.symbol(from: currencyCode)
+            let viewController = ProductFormViewController(product: productVariation,
+                                                           currency: currency,
+                                                           presentationStyle: .navigationStack,
+                                                           isEditProductsRelease2Enabled: true,
+                                                           isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
+            navigationController?.pushViewController(viewController, animated: true)
+        }
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
