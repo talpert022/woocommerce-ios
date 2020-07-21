@@ -11,6 +11,9 @@ protocol ProductFormDataModel {
     var shortDescription: String? { get }
     var permalink: String { get }
 
+    var virtual: Bool { get }
+    var downloadable: Bool { get }
+
     // Images
     var images: [ProductImage] { get }
 
@@ -28,6 +31,9 @@ protocol ProductFormDataModel {
 
     // Inventory
     var sku: String? { get }
+    var manageStock: Bool { get }
+    var stockStatus: ProductStockStatus { get }
+    var stockQuantity: Int64? { get }
 }
 
 extension ProductFormDataModel {
@@ -46,6 +52,11 @@ extension ProductFormDataModel {
         }
         return description.removedHTMLTags.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// Whether shipping settings are available for the product.
+    var isShippingEnabled: Bool {
+        return downloadable == false && virtual == false
+    }
 }
 
 extension Product: ProductFormDataModel {
@@ -55,6 +66,10 @@ extension Product: ProductFormDataModel {
 
     var shortDescription: String? {
         briefDescription
+    }
+
+    var stockStatus: ProductStockStatus {
+        productStockStatus
     }
 }
 extension ProductVariation: ProductFormDataModel {
@@ -136,6 +151,9 @@ final class ProductFormViewController: UIViewController {
                                                   productImageActionHandler: productImageActionHandler,
                                                   isEditProductsRelease2Enabled: isEditProductsRelease2Enabled,
                                                   isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
+        case let productVariation as ProductVariation:
+            self.viewModel = ProductVariationFormViewModel(productVariation: productVariation,
+                                                           productImageActionHandler: productImageActionHandler)
         default:
             fatalError()
         }
@@ -290,9 +308,6 @@ private extension ProductFormViewController {
 private extension ProductFormViewController {
     func observeProduct() {
         cancellableProduct = viewModel.observableProduct.subscribe { [weak self] product in
-            guard let product = product as? Product else {
-                return
-            }
             self?.onProductUpdated(product: product)
         }
     }
@@ -309,7 +324,7 @@ private extension ProductFormViewController {
         }
     }
 
-    func onProductUpdated(product: Product) {
+    func onProductUpdated(product: ProductFormDataModel) {
         updateMoreDetailsButtonVisibility()
 
         tableViewModel = DefaultProductFormTableViewModel(product: product,
@@ -437,10 +452,6 @@ private extension ProductFormViewController {
     }
 
     func dispatchUpdateProductAndPasswordAction() {
-        guard let product = product as? Product else {
-            return
-        }
-
         let group = DispatchGroup()
 
         // Updated Product

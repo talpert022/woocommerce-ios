@@ -13,7 +13,7 @@ struct DefaultProductFormTableViewModel: ProductFormTableViewModel {
     var siteTimezone: TimeZone = TimeZone.siteTimezone
 
     init(product: ProductFormDataModel,
-         actionsFactory: ProductFormActionsFactory,
+         actionsFactory: ProductFormActionsFactoryProtocol,
          currency: String,
          currencyFormatter: CurrencyFormatter = CurrencyFormatter()) {
         self.currency = currency
@@ -23,7 +23,7 @@ struct DefaultProductFormTableViewModel: ProductFormTableViewModel {
 }
 
 private extension DefaultProductFormTableViewModel {
-    mutating func configureSections(product: ProductFormDataModel, actionsFactory: ProductFormActionsFactory) {
+    mutating func configureSections(product: ProductFormDataModel, actionsFactory: ProductFormActionsFactoryProtocol) {
         sections = [.primaryFields(rows: primaryFieldRows(product: product, actions: actionsFactory.primarySectionActions())),
                     .settings(rows: settingsRows(productData: product, actions: actionsFactory.settingsSectionActions()))]
             .filter { $0.isNotEmpty }
@@ -89,10 +89,10 @@ private extension DefaultProductFormTableViewModel {
             switch action {
             case .priceSettings:
                 return .price(viewModel: priceSettingsRow(product: productVariation))
-//            case .shippingSettings:
-//                return .shipping(viewModel: shippingSettingsRow(product: product))
-//            case .inventorySettings:
-//                return .inventory(viewModel: inventorySettingsRow(product: product))
+            case .shippingSettings:
+                return .shipping(viewModel: shippingSettingsRow(product: productVariation))
+            case .inventorySettings:
+                return .inventory(viewModel: inventorySettingsRow(product: productVariation))
             default:
                 fatalError("Unexpected action in the settings section: \(action)")
             }
@@ -143,7 +143,7 @@ private extension DefaultProductFormTableViewModel {
                                                         details: details)
     }
 
-    func inventorySettingsRow(product: Product) -> ProductFormSection.SettingsRow.ViewModel {
+    func inventorySettingsRow(product: ProductFormDataModel) -> ProductFormSection.SettingsRow.ViewModel {
         let icon = UIImage.inventoryImage
         let title = Constants.inventorySettingsTitle
 
@@ -156,7 +156,7 @@ private extension DefaultProductFormTableViewModel {
         if let stockQuantity = product.stockQuantity, product.manageStock {
             inventoryDetails.append(String.localizedStringWithFormat(Constants.stockQuantityFormat, stockQuantity))
         } else if product.manageStock == false {
-            let stockStatus = product.productStockStatus
+            let stockStatus = product.stockStatus
             inventoryDetails.append(stockStatus.description)
         }
 
@@ -167,7 +167,7 @@ private extension DefaultProductFormTableViewModel {
                                                         details: details)
     }
 
-    func shippingSettingsRow(product: Product) -> ProductFormSection.SettingsRow.ViewModel {
+    func shippingSettingsRow(product: ProductFormDataModel) -> ProductFormSection.SettingsRow.ViewModel {
         let icon = UIImage.shippingImage
         let title = Constants.shippingSettingsTitle
 
