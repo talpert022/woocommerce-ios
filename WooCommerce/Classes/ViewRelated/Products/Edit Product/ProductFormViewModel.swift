@@ -13,7 +13,7 @@ protocol ProductFormViewModelProtocol {
     /// Creates actions available on the bottom sheet.
     var actionsFactory: ProductFormActionsFactoryProtocol { get }
 
-    var productValue: ProductFormDataModel { get }
+    var productValue: ProductFormDataModel & TaxClassRequestable { get }
 
     var password: String? { get }
 
@@ -44,7 +44,7 @@ protocol ProductFormViewModelProtocol {
 
     func updateInventorySettings(sku: String?,
                                  manageStock: Bool,
-                                 soldIndividually: Bool,
+                                 soldIndividually: Bool?,
                                  stockQuantity: Int64?,
                                  backordersSetting: ProductBackordersSetting?,
                                  stockStatus: ProductStockStatus?)
@@ -91,7 +91,7 @@ final class ProductFormViewModel: ProductFormViewModelProtocol {
         isUpdateEnabledSubject
     }
 
-    var productValue: ProductFormDataModel {
+    var productValue: ProductFormDataModel & TaxClassRequestable {
         product
     }
 
@@ -226,7 +226,7 @@ extension ProductFormViewModel {
 
     func updateInventorySettings(sku: String?,
                                  manageStock: Bool,
-                                 soldIndividually: Bool,
+                                 soldIndividually: Bool?,
                                  stockQuantity: Int64?,
                                  backordersSetting: ProductBackordersSetting?,
                                  stockStatus: ProductStockStatus?) {

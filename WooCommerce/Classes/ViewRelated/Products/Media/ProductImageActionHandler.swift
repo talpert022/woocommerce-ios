@@ -200,7 +200,7 @@ final class ProductImageActionHandler {
 
     /// Resets the product images to the ones from the given Product.
     ///
-    func resetProductImages(to product: Product) {
+    func resetProductImages(to product: ProductFormDataModel) {
         allStatuses = (productImageStatuses: product.imageStatuses, error: nil)
     }
 }

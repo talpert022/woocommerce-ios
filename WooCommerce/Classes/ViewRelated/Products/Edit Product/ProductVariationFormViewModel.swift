@@ -7,7 +7,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
         productSubject
     }
 
-    var productValue: ProductFormDataModel {
+    var productValue: ProductFormDataModel & TaxClassRequestable {
         productVariation
     }
 
@@ -145,7 +145,7 @@ extension ProductVariationFormViewModel {
 
     func updateInventorySettings(sku: String?,
                                  manageStock: Bool,
-                                 soldIndividually: Bool,
+                                 soldIndividually: Bool?,
                                  stockQuantity: Int64?,
                                  backordersSetting: ProductBackordersSetting?,
                                  stockStatus: ProductStockStatus?) {

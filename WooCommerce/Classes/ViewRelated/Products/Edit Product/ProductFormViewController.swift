@@ -9,14 +9,16 @@ protocol ProductFormDataModel {
     var name: String { get }
     var description: String? { get }
     var shortDescription: String? { get }
-    var permalink: String { get }
 
+    // Settings
     var virtual: Bool { get }
     var downloadable: Bool { get }
+    var permalink: String { get }
 
     // Images
     var images: [ProductImage] { get }
 
+    // Price
     var regularPrice: String? { get }
     var salePrice: String? { get }
     var dateOnSaleStart: Date? { get }
@@ -28,21 +30,19 @@ protocol ProductFormDataModel {
     var weight: String? { get }
     var dimensions: ProductDimensions { get }
     var shippingClass: String? { get }
+    var shippingClassID: Int64 { get }
 
     // Inventory
     var sku: String? { get }
     var manageStock: Bool { get }
     var stockStatus: ProductStockStatus { get }
     var stockQuantity: Int64? { get }
+    var backordersKey: String { get }
 }
 
 extension ProductFormDataModel {
     var productTaxStatus: ProductTaxStatus {
         return ProductTaxStatus(rawValue: taxStatusKey)
-    }
-
-    var imageStatuses: [ProductImageStatus] {
-        return images.map({ ProductImageStatus.remote(image: $0) })
     }
 
     /// Returns the full description without the HTML tags and leading/trailing white spaces and new lines.
@@ -56,6 +56,10 @@ extension ProductFormDataModel {
     /// Whether shipping settings are available for the product.
     var isShippingEnabled: Bool {
         return downloadable == false && virtual == false
+    }
+
+    var backordersSetting: ProductBackordersSetting {
+        return ProductBackordersSetting(rawValue: backordersKey)
     }
 }
 
@@ -73,7 +77,6 @@ extension Product: ProductFormDataModel {
     }
 }
 extension ProductVariation: ProductFormDataModel {
-
     var name: String {
         attributes.map({ $0.option }).joined(separator: " - ")
     }
@@ -101,7 +104,7 @@ final class ProductFormViewController: UIViewController {
     }()
 
     private let viewModel: ProductFormViewModelProtocol
-    private var product: ProductFormDataModel {
+    private var product: ProductFormDataModel & TaxClassRequestable {
         viewModel.productValue
     }
 
@@ -707,11 +710,6 @@ extension ProductFormViewController: KeyboardScrollable {
 //
 private extension ProductFormViewController {
     func showProductImages() {
-        // TODO-jc
-        guard let product = product as? Product else {
-            return
-        }
-
         let imagesViewController = ProductImagesViewController(product: product,
                                                                productImageActionHandler: productImageActionHandler,
                                                                productUIImageLoader: productUIImageLoader) { [weak self] images, hasChangedData in
@@ -795,11 +793,6 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editPriceSettings() {
-        // TODO-jc
-        guard let product = product as? Product else {
-            return
-        }
-
         let priceSettingsViewController = ProductPriceSettingsViewController(product: product) { [weak self]
             (regularPrice, salePrice, dateOnSaleStart, dateOnSaleEnd, taxStatus, taxClass) in
             self?.onEditPriceSettingsCompletion(regularPrice: regularPrice,
@@ -849,11 +842,6 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editShippingSettings() {
-        // TODO-jc
-        guard let product = product as? Product else {
-            return
-        }
-
         let shippingSettingsViewController = ProductShippingSettingsViewController(product: product) { [weak self] (weight, dimensions, shippingClass) in
             self?.onEditShippingSettingsCompletion(weight: weight, dimensions: dimensions, shippingClass: shippingClass)
         }
@@ -882,11 +870,6 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editInventorySettings() {
-        // TODO-jc
-        guard let product = product as? Product else {
-            return
-        }
-
         let inventorySettingsViewController = ProductInventorySettingsViewController(product: product) { [weak self] data in
             self?.onEditInventorySettingsCompletion(data: data)
         }
@@ -894,11 +877,6 @@ private extension ProductFormViewController {
     }
 
     func onEditInventorySettingsCompletion(data: ProductInventoryEditableData) {
-        // TODO-jc
-        guard let product = product as? Product else {
-            return
-        }
-
         defer {
             navigationController?.popViewController(animated: true)
         }
@@ -991,7 +969,6 @@ private extension ProductFormViewController {
 //
 private extension ProductFormViewController {
     func editSKU() {
-        // TODO-jc
         guard let product = product as? Product else {
             return
         }

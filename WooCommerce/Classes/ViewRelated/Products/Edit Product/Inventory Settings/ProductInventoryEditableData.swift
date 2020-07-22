@@ -5,20 +5,20 @@ import Yosemite
 struct ProductInventoryEditableData {
     let sku: String?
     let manageStock: Bool
-    let soldIndividually: Bool
+    let soldIndividually: Bool?
     let stockQuantity: Int64?
     let backordersSetting: ProductBackordersSetting?
     let stockStatus: ProductStockStatus?
 }
 
 extension ProductInventoryEditableData {
-    init(product: Product) {
+    init(product: ProductFormDataModel) {
         self.sku = product.sku
         self.manageStock = product.manageStock
-        self.soldIndividually = product.soldIndividually
+        self.soldIndividually = (product as? Product)?.soldIndividually
         self.stockQuantity = product.stockQuantity
         self.backordersSetting = product.backordersSetting
-        self.stockStatus = product.productStockStatus
+        self.stockStatus = product.stockStatus
     }
 }
 

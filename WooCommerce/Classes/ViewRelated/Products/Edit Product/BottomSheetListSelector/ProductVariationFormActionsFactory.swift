@@ -11,6 +11,7 @@ struct ProductVariationFormActionsFactory: ProductFormActionsFactoryProtocol {
     /// Returns an array of actions that are visible in the product form primary section.
     func primarySectionActions() -> [ProductFormEditAction] {
         return [
+            .images,
             .name, // TODO-jc: READONLY?
             .description
         ]
