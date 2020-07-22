@@ -75,8 +75,8 @@ extension ProductFormSection.PrimaryFieldRow: Equatable {
         switch (lhs, rhs) {
         case (.images, .images):
             return true
-        case (let .name(name1), let .name(name2)):
-            return name1 == name2
+        case (let .name(name1, isEditable1), let .name(name2, isEditable2)):
+            return name1 == name2 && isEditable1 == isEditable2
         case (let .description(description1), let .description(description2)):
             return description1 == description2
         default:

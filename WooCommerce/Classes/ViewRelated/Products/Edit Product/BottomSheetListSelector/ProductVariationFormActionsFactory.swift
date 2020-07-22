@@ -12,7 +12,7 @@ struct ProductVariationFormActionsFactory: ProductFormActionsFactoryProtocol {
     func primarySectionActions() -> [ProductFormEditAction] {
         return [
             .images,
-            .name, // TODO-jc: READONLY?
+            .name,
             .description
         ]
     }

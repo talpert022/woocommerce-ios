@@ -125,7 +125,6 @@ extension ProductVariationFormViewModel {
     }
 
     func updateDescription(_ newDescription: String) {
-        // TODO-jc
         productVariation = productVariation.copy(description: newDescription)
     }
 
@@ -149,7 +148,6 @@ extension ProductVariationFormViewModel {
                                  stockQuantity: Int64?,
                                  backordersSetting: ProductBackordersSetting?,
                                  stockStatus: ProductStockStatus?) {
-        // TODO-jc: update inventory UI to remove `soldIndividually`
         productVariation = productVariation.copy(sku: sku,
                                                  manageStock: manageStock,
                                                  stockQuantity: stockQuantity,
