@@ -20,7 +20,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateName(newName)
 
         // Assert
-        XCTAssertEqual(viewModel.product.name, newName)
+        XCTAssertEqual((viewModel.productValue as? Product)?.name, newName)
     }
 
     func testUpdatingDescription() {
@@ -37,7 +37,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateDescription(newDescription)
 
         // Assert
-        XCTAssertEqual(viewModel.product.fullDescription, newDescription)
+        XCTAssertEqual((viewModel.productValue as? Product)?.fullDescription, newDescription)
     }
 
     func testUpdatingShippingSettings() {
@@ -61,13 +61,13 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateShippingSettings(weight: newWeight, dimensions: newDimensions, shippingClass: newShippingClass)
 
         // Assert
-        XCTAssertEqual(viewModel.product.fullDescription, product.fullDescription)
-        XCTAssertEqual(viewModel.product.name, product.name)
-        XCTAssertEqual(viewModel.product.weight, newWeight)
-        XCTAssertEqual(viewModel.product.dimensions, newDimensions)
-        XCTAssertEqual(viewModel.product.shippingClass, newShippingClass.slug)
-        XCTAssertEqual(viewModel.product.shippingClassID, newShippingClass.shippingClassID)
-        XCTAssertEqual(viewModel.product.productShippingClass, newShippingClass)
+        XCTAssertEqual((viewModel.productValue as? Product)?.fullDescription, product.fullDescription)
+        XCTAssertEqual((viewModel.productValue as? Product)?.name, product.name)
+        XCTAssertEqual((viewModel.productValue as? Product)?.weight, newWeight)
+        XCTAssertEqual((viewModel.productValue as? Product)?.dimensions, newDimensions)
+        XCTAssertEqual((viewModel.productValue as? Product)?.shippingClass, newShippingClass.slug)
+        XCTAssertEqual((viewModel.productValue as? Product)?.shippingClassID, newShippingClass.shippingClassID)
+        XCTAssertEqual((viewModel.productValue as? Product)?.productShippingClass, newShippingClass)
     }
 
     func testUpdatingPriceSettings() {
@@ -94,12 +94,12 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
                                       taxClass: newTaxClass)
 
         // Assert
-        XCTAssertEqual(viewModel.product.regularPrice, newRegularPrice)
-        XCTAssertEqual(viewModel.product.salePrice, newSalePrice)
-        XCTAssertEqual(viewModel.product.dateOnSaleStart, newDateOnSaleStart)
-        XCTAssertEqual(viewModel.product.dateOnSaleEnd, newDateOnSaleEnd)
-        XCTAssertEqual(viewModel.product.taxStatusKey, newTaxStatus.rawValue)
-        XCTAssertEqual(viewModel.product.taxClass, newTaxClass.slug)
+        XCTAssertEqual((viewModel.productValue as? Product)?.regularPrice, newRegularPrice)
+        XCTAssertEqual((viewModel.productValue as? Product)?.salePrice, newSalePrice)
+        XCTAssertEqual((viewModel.productValue as? Product)?.dateOnSaleStart, newDateOnSaleStart)
+        XCTAssertEqual((viewModel.productValue as? Product)?.dateOnSaleEnd, newDateOnSaleEnd)
+        XCTAssertEqual((viewModel.productValue as? Product)?.taxStatusKey, newTaxStatus.rawValue)
+        XCTAssertEqual((viewModel.productValue as? Product)?.taxClass, newTaxClass.slug)
     }
 
     func testUpdatingInventorySettings() {
@@ -126,12 +126,12 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
                                           stockStatus: newStockStatus)
 
         // Assert
-        XCTAssertEqual(viewModel.product.sku, newSKU)
-        XCTAssertEqual(viewModel.product.manageStock, newManageStock)
-        XCTAssertEqual(viewModel.product.soldIndividually, newSoldIndividually)
-        XCTAssertEqual(viewModel.product.stockQuantity, newStockQuantity)
-        XCTAssertEqual(viewModel.product.backordersSetting, newBackordersSetting)
-        XCTAssertEqual(viewModel.product.productStockStatus, newStockStatus)
+        XCTAssertEqual((viewModel.productValue as? Product)?.sku, newSKU)
+        XCTAssertEqual((viewModel.productValue as? Product)?.manageStock, newManageStock)
+        XCTAssertEqual((viewModel.productValue as? Product)?.soldIndividually, newSoldIndividually)
+        XCTAssertEqual((viewModel.productValue as? Product)?.stockQuantity, newStockQuantity)
+        XCTAssertEqual((viewModel.productValue as? Product)?.backordersSetting, newBackordersSetting)
+        XCTAssertEqual((viewModel.productValue as? Product)?.productStockStatus, newStockStatus)
     }
 
     func testUpdatingImages() {
@@ -154,7 +154,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateImages(newImages)
 
         // Assert
-        XCTAssertEqual(viewModel.product.images, newImages)
+        XCTAssertEqual((viewModel.productValue as? Product)?.images, newImages)
     }
 
     func testUpdatingProductCategories() {
@@ -175,7 +175,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateProductCategories(newCategories)
 
         // Assert
-        XCTAssertEqual(viewModel.product.categories, newCategories)
+        XCTAssertEqual((viewModel.productValue as? Product)?.categories, newCategories)
     }
 
     func testUpdatingProductTags() {
@@ -195,7 +195,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateProductTags(newTags)
 
         // Assert
-        XCTAssertEqual(viewModel.product.tags, newTags)
+        XCTAssertEqual((viewModel.productValue as? Product)?.tags, newTags)
     }
 
     func testUpdatingBriefDescription() {
@@ -212,7 +212,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateBriefDescription(newBriefDescription)
 
         // Assert
-        XCTAssertEqual(viewModel.product.briefDescription, newBriefDescription)
+        XCTAssertEqual((viewModel.productValue as? Product)?.briefDescription, newBriefDescription)
     }
 
     func testUpdatingProductSettings() {
@@ -246,14 +246,13 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateProductSettings(productSettings)
 
         // Assert
-        XCTAssertEqual(viewModel.product.statusKey, newStatus)
-        XCTAssertEqual(viewModel.product.featured, featured)
-        XCTAssertEqual(viewModel.product.catalogVisibilityKey, catalogVisibility)
-        XCTAssertEqual(viewModel.product.virtual, virtual)
-        XCTAssertEqual(viewModel.product.reviewsAllowed, reviewsAllowed)
-        XCTAssertEqual(viewModel.product.slug, slug)
-        XCTAssertEqual(viewModel.product.purchaseNote, purchaseNote)
-        XCTAssertEqual(viewModel.product.menuOrder, menuOrder)
+        XCTAssertEqual((viewModel.productValue as? Product)?.statusKey, newStatus)
+        XCTAssertEqual((viewModel.productValue as? Product)?.featured, featured)
+        XCTAssertEqual((viewModel.productValue as? Product)?.catalogVisibilityKey, catalogVisibility)
+        XCTAssertEqual((viewModel.productValue as? Product)?.reviewsAllowed, reviewsAllowed)
+        XCTAssertEqual((viewModel.productValue as? Product)?.slug, slug)
+        XCTAssertEqual((viewModel.productValue as? Product)?.purchaseNote, purchaseNote)
+        XCTAssertEqual((viewModel.productValue as? Product)?.menuOrder, menuOrder)
     }
 
     func testUpdatingSKU() {
@@ -270,7 +269,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateSKU(sku)
 
         // Assert
-        XCTAssertEqual(viewModel.product.sku, sku)
+        XCTAssertEqual((viewModel.productValue as? Product)?.sku, sku)
     }
 
     func testUpdatingExternalLink() {
@@ -288,8 +287,8 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateExternalLink(externalURL: externalURL, buttonText: buttonText)
 
         // Assert
-        XCTAssertEqual(viewModel.product.externalURL, externalURL)
-        XCTAssertEqual(viewModel.product.buttonText, buttonText)
+        XCTAssertEqual((viewModel.productValue as? Product)?.externalURL, externalURL)
+        XCTAssertEqual((viewModel.productValue as? Product)?.buttonText, buttonText)
     }
 
     func testUpdatingGroupedProductIDs() {
@@ -306,7 +305,7 @@ final class ProductFormViewModel_UpdatesTests: XCTestCase {
         viewModel.updateGroupedProductIDs(groupedProductIDs)
 
         // Assert
-        XCTAssertEqual(viewModel.product.groupedProducts, groupedProductIDs)
+        XCTAssertEqual((viewModel.productValue as? Product)?.groupedProducts, groupedProductIDs)
     }
 }
 
