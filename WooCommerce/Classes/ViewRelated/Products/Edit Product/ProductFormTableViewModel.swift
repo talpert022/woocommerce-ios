@@ -16,7 +16,7 @@ enum ProductFormSection {
 
     enum PrimaryFieldRow {
         case images
-        case name(name: String?)
+        case name(name: String?, isEditable: Bool)
         case description(description: String?)
     }
 

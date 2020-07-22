@@ -40,6 +40,12 @@ final class TextFieldTableViewCell: UITableViewCell {
         textField.addTarget(self, action: #selector(textFieldDidBegin(textField:)), for: .editingDidBegin)
     }
 
+    func configureAsReadonly(text: String?) {
+        textField.text = text
+        textField.borderStyle = .none
+        textField.isEnabled = false
+    }
+
     @discardableResult
     override func becomeFirstResponder() -> Bool {
         textField.becomeFirstResponder()
