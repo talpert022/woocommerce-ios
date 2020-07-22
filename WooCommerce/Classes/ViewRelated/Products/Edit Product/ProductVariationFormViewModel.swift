@@ -197,7 +197,16 @@ extension ProductVariationFormViewModel {
 //
 extension ProductVariationFormViewModel {
     func updateProductRemotely(onCompletion: @escaping (Result<ProductFormDataModel, ProductUpdateError>) -> Void) {
-        // TODO-jc
+        let updateAction = ProductVariationAction.updateProductVariation(productVariation: productVariation) { [weak self] result in
+            switch result {
+            case .failure(let error):
+                onCompletion(.failure(error))
+            case .success(let product):
+                self?.resetProduct(product)
+                onCompletion(.success(product))
+            }
+        }
+        ServiceLocator.stores.dispatch(updateAction)
     }
 }
 
