@@ -25,7 +25,7 @@ struct DefaultProductFormTableViewModel: ProductFormTableViewModel {
 private extension DefaultProductFormTableViewModel {
     mutating func configureSections(product: ProductFormDataModel, actionsFactory: ProductFormActionsFactoryProtocol) {
         sections = [.primaryFields(rows: primaryFieldRows(product: product, actions: actionsFactory.primarySectionActions())),
-                    .settings(rows: settingsRows(productData: product, actions: actionsFactory.settingsSectionActions()))]
+                    .settings(rows: settingsRows(productModel: product, actions: actionsFactory.settingsSectionActions()))]
             .filter { $0.isNotEmpty }
     }
 
@@ -44,7 +44,7 @@ private extension DefaultProductFormTableViewModel {
         }
     }
 
-    func settingsRows(productData product: ProductFormDataModel, actions: [ProductFormEditAction]) -> [ProductFormSection.SettingsRow] {
+    func settingsRows(productModel product: ProductFormDataModel, actions: [ProductFormEditAction]) -> [ProductFormSection.SettingsRow] {
         switch product {
         case let product as Product:
             return settingsRows(product: product, actions: actions)
