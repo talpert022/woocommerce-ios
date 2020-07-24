@@ -262,6 +262,8 @@
 		02EA6BFA2435E92600FFF90A /* KingfisherImageDownloader+ImageDownloadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EA6BF92435E92600FFF90A /* KingfisherImageDownloader+ImageDownloadable.swift */; };
 		02EA6BFC2435EC3500FFF90A /* MockImageDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EA6BFB2435EC3500FFF90A /* MockImageDownloader.swift */; };
 		02EAB6D92480AA4900FD873C /* SentryCrashLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EAB6D82480AA4900FD873C /* SentryCrashLogger.swift */; };
+		02EEA72724CAA8880053F437 /* ProductPriceSettingsViewModel+ProductVariationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EEA72624CAA8880053F437 /* ProductPriceSettingsViewModel+ProductVariationTests.swift */; };
+		02EEA72924CAA9170053F437 /* MockProductVariation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EEA72824CAA9170053F437 /* MockProductVariation.swift */; };
 		02EEB5C42424AFAA00B8A701 /* TextFieldTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02EEB5C22424AFAA00B8A701 /* TextFieldTableViewCell.swift */; };
 		02EEB5C52424AFAA00B8A701 /* TextFieldTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 02EEB5C32424AFAA00B8A701 /* TextFieldTableViewCell.xib */; };
 		02F49ADA23BF356E00FA0BFA /* TitleAndTextFieldTableViewCell.ViewModel+State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F49AD923BF356E00FA0BFA /* TitleAndTextFieldTableViewCell.ViewModel+State.swift */; };
@@ -1149,6 +1151,8 @@
 		02EA6BF92435E92600FFF90A /* KingfisherImageDownloader+ImageDownloadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KingfisherImageDownloader+ImageDownloadable.swift"; sourceTree = "<group>"; };
 		02EA6BFB2435EC3500FFF90A /* MockImageDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockImageDownloader.swift; sourceTree = "<group>"; };
 		02EAB6D82480AA4900FD873C /* SentryCrashLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashLogger.swift; sourceTree = "<group>"; };
+		02EEA72624CAA8880053F437 /* ProductPriceSettingsViewModel+ProductVariationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProductPriceSettingsViewModel+ProductVariationTests.swift"; sourceTree = "<group>"; };
+		02EEA72824CAA9170053F437 /* MockProductVariation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockProductVariation.swift; sourceTree = "<group>"; };
 		02EEB5C22424AFAA00B8A701 /* TextFieldTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTableViewCell.swift; sourceTree = "<group>"; };
 		02EEB5C32424AFAA00B8A701 /* TextFieldTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldTableViewCell.xib; sourceTree = "<group>"; };
 		02F49AD923BF356E00FA0BFA /* TitleAndTextFieldTableViewCell.ViewModel+State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TitleAndTextFieldTableViewCell.ViewModel+State.swift"; sourceTree = "<group>"; };
@@ -1834,6 +1838,7 @@
 				025A1245247CDF55008EA761 /* ProductFormViewModel+ChangesTests.swift */,
 				025A1247247CE793008EA761 /* ProductFormViewModel+ObservablesTests.swift */,
 				02AC822B2498BC9700A615FB /* ProductFormViewModel+UpdatesTests.swift */,
+				02EEA72624CAA8880053F437 /* ProductPriceSettingsViewModel+ProductVariationTests.swift */,
 			);
 			path = "Edit Product";
 			sourceTree = "<group>";
@@ -2819,6 +2824,7 @@
 				6856D249FD1702FE3864950A /* MockPushNotificationsManager.swift */,
 				0259EF78246BF66000B84FDF /* MockProductsAppSettingsStoresManager.swift */,
 				57C9A8FD24C23335001E1C2F /* MockNoticePresenter.swift */,
+				02EEA72824CAA9170053F437 /* MockProductVariation.swift */,
 			);
 			path = Mockups;
 			sourceTree = "<group>";
@@ -5213,6 +5219,7 @@
 				0235BFDB246E99A700778909 /* ProductFormActionsFactory+NonEmptyBottomSheetActionsTests.swift in Sources */,
 				020BE76723B49FE9007FE54C /* AztecBoldFormatBarCommandTests.swift in Sources */,
 				57C9A8FE24C23335001E1C2F /* MockNoticePresenter.swift in Sources */,
+				02EEA72924CAA9170053F437 /* MockProductVariation.swift in Sources */,
 				CE4DA5C821DD759400074607 /* CurrencyFormatterTests.swift in Sources */,
 				B57C745120F56EE900EEFC87 /* UITableViewCellHelpersTests.swift in Sources */,
 				0225C42824768A4C00C5B4F0 /* FilterProductListViewModelTests.swift in Sources */,
@@ -5223,6 +5230,7 @@
 				B53A569D21123EEB000776C9 /* MockupStorage.swift in Sources */,
 				B57C5C9E21B80E8300FF82B2 /* SessionManager+Internal.swift in Sources */,
 				456417F6247D5643001203F6 /* UITableView+HelpersTests.swift in Sources */,
+				02EEA72724CAA8880053F437 /* ProductPriceSettingsViewModel+ProductVariationTests.swift in Sources */,
 				0273707E24C0047800167204 /* SequenceHelpersTests.swift in Sources */,
 				F997174723DC070D00592D8E /* XLPagerStrip+AccessibilityIdentifierTests.swift in Sources */,
 				B55BC1F321A8790F0011A0C0 /* StringHTMLTests.swift in Sources */,

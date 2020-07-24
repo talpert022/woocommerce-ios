@@ -143,8 +143,16 @@ final class ProductPriceSettingsViewModel: ProductPriceSettingsViewModelOutput {
         let salesSection = Section(title: nil, rows: saleScheduleRows)
 
         // Tax section
-        let taxSection = Section(title: NSLocalizedString("Tax Settings", comment: "Section header title for product tax settings"),
+        let taxSection: Section
+        switch product {
+        case is Product:
+            taxSection = Section(title: NSLocalizedString("Tax Settings", comment: "Section header title for product tax settings"),
                                  rows: [.taxStatus, .taxClass])
+        case is ProductVariation:
+            taxSection = Section(title: NSLocalizedString("Tax Settings", comment: "Section header title for product tax settings"), rows: [.taxClass])
+        default:
+            fatalError("Unsupported product type: \(product)")
+        }
 
         return [
             priceSection,
