@@ -99,6 +99,7 @@ final class ProductFormViewModel: ProductFormViewModelProtocol {
         isUpdateEnabledSubject
     }
 
+    /// The latest product value.
     var productModel: Product {
         product
     }
