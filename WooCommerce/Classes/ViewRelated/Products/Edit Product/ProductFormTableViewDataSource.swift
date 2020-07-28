@@ -118,15 +118,14 @@ private extension ProductFormTableViewDataSource {
     }
 
     func configureName(cell: UITableViewCell, name: String?, isEditable: Bool) {
-        guard let cell = cell as? TextFieldTableViewCell else {
-            fatalError()
-        }
-
-        cell.accessoryType = .none
-
-        let placeholder = NSLocalizedString("Title", comment: "Placeholder in the Product Title row on Product form screen.")
-
         if isEditable {
+            guard let cell = cell as? TextFieldTableViewCell else {
+                fatalError()
+            }
+
+            cell.accessoryType = .none
+
+            let placeholder = NSLocalizedString("Title", comment: "Placeholder in the Product Title row on Product form screen.")
             let viewModel = TextFieldTableViewCell.ViewModel(text: name, placeholder: placeholder, onTextChange: { [weak self] newName in
                 self?.onNameChange?(newName)
                 }, onTextDidBeginEditing: {
@@ -134,7 +133,14 @@ private extension ProductFormTableViewDataSource {
             }, inputFormatter: nil, keyboardType: .default)
             cell.configure(viewModel: viewModel)
         } else {
-            cell.configureAsReadonly(text: name)
+            guard let cell = cell as? BasicTableViewCell else {
+                fatalError()
+            }
+
+            cell.accessoryType = .none
+            cell.textLabel?.text = name
+            cell.textLabel?.applyHeadlineStyle()
+            cell.textLabel?.textColor = .text
         }
     }
 
