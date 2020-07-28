@@ -142,9 +142,9 @@ final class ProductPriceSettingsViewModel: ProductPriceSettingsViewModelOutput {
         }
         let salesSection = Section(title: nil, rows: saleScheduleRows)
 
-        // Tax section
         switch product {
         case is Product:
+            // Tax section
             let taxSection: Section
             taxSection = Section(title: NSLocalizedString("Tax Settings", comment: "Section header title for product tax settings"),
                                  rows: [.taxStatus, .taxClass])
