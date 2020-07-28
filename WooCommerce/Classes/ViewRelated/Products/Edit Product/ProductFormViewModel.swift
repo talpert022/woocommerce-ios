@@ -73,7 +73,7 @@ protocol ProductFormViewModelProtocol {
 
     // Remote action
 
-    func updateProductRemotely(onCompletion: @escaping (Result<ProductFormDataModel, ProductUpdateError>) -> Void)
+    func updateProductRemotely(onCompletion: @escaping (Result<ProductModel, ProductUpdateError>) -> Void)
 
     // Reset actions
 
@@ -294,7 +294,7 @@ extension ProductFormViewModel {
 // MARK: Remote actions
 //
 extension ProductFormViewModel {
-    func updateProductRemotely(onCompletion: @escaping (Result<ProductFormDataModel, ProductUpdateError>) -> Void) {
+    func updateProductRemotely(onCompletion: @escaping (Result<Product, ProductUpdateError>) -> Void) {
         let updateProductAction = ProductAction.updateProduct(product: product) { [weak self] result in
             switch result {
             case .failure(let error):
@@ -311,10 +311,7 @@ extension ProductFormViewModel {
 // MARK: Reset actions
 //
 extension ProductFormViewModel {
-    private func resetProduct(_ product: ProductFormDataModel) {
-        guard let product = product as? Product else {
-            return
-        }
+    private func resetProduct(_ product: Product) {
         originalProduct = product
     }
 

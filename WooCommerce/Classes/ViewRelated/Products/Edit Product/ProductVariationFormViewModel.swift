@@ -193,7 +193,7 @@ extension ProductVariationFormViewModel {
 // MARK: Reset actions
 //
 extension ProductVariationFormViewModel {
-    func updateProductRemotely(onCompletion: @escaping (Result<ProductFormDataModel, ProductUpdateError>) -> Void) {
+    func updateProductRemotely(onCompletion: @escaping (Result<ProductVariation, ProductUpdateError>) -> Void) {
         let updateAction = ProductVariationAction.updateProductVariation(productVariation: productVariation) { [weak self] result in
             switch result {
             case .failure(let error):
