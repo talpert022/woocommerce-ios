@@ -5,6 +5,7 @@ import Yosemite
 
 /// The entry UI for adding/editing a Product.
 final class ProductFormViewController<ViewModel: ProductFormViewModelProtocol>: UIViewController, UITableViewDelegate {
+    typealias ProductModel = ViewModel.ProductModel
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var moreDetailsContainerView: UIView!
@@ -17,7 +18,7 @@ final class ProductFormViewController<ViewModel: ProductFormViewModelProtocol>: 
     }()
 
     private let viewModel: ViewModel
-    private var product: ViewModel.ProductModel {
+    private var product: ProductModel {
         viewModel.productModel
     }
 
@@ -386,7 +387,7 @@ private extension ProductFormViewController {
         }
     }
 
-    func onProductUpdated(product: ProductFormDataModel) {
+    func onProductUpdated(product: ProductModel) {
         updateMoreDetailsButtonVisibility()
 
         tableViewModel = DefaultProductFormTableViewModel(product: product,
