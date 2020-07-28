@@ -4,7 +4,7 @@ import WordPressUI
 import Yosemite
 
 /// The entry UI for adding/editing a Product.
-final class ProductFormViewController: UIViewController {
+final class ProductFormViewController<ViewModel: ProductFormViewModelProtocol>: UIViewController, UITableViewDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var moreDetailsContainerView: UIView!
@@ -16,9 +16,9 @@ final class ProductFormViewController: UIViewController {
         return keyboardFrameObserver
     }()
 
-    private let viewModel: ProductFormViewModelProtocol
-    private var product: ProductFormDataModel & TaxClassRequestable {
-        viewModel.productValue
+    private let viewModel: ViewModel
+    private var product: ViewModel.ProductModel {
+        viewModel.productModel
     }
 
     private var password: String? {
@@ -39,7 +39,7 @@ final class ProductFormViewController: UIViewController {
         presentationStyle.createExitForm(viewController: self)
     }()
 
-    private let presentationStyle: PresentationStyle
+    private let presentationStyle: ProductFormPresentationStyle
     private let navigationRightBarButtonItemsSubject = PublishSubject<[UIBarButtonItem]>()
     private var navigationRightBarButtonItems: Observable<[UIBarButtonItem]> {
         navigationRightBarButtonItemsSubject
@@ -48,40 +48,28 @@ final class ProductFormViewController: UIViewController {
     private var cancellableProductName: ObservationToken?
     private var cancellableUpdateEnabled: ObservationToken?
 
-    init(product: ProductFormDataModel,
+    init(viewModel: ViewModel,
+         productImageActionHandler: ProductImageActionHandler,
          currency: String = CurrencySettings.shared.symbol(from: CurrencySettings.shared.currencyCode),
-         presentationStyle: PresentationStyle,
+         presentationStyle: ProductFormPresentationStyle,
          isEditProductsRelease2Enabled: Bool,
          isEditProductsRelease3Enabled: Bool) {
+        self.viewModel = viewModel
         self.currency = currency
         self.presentationStyle = presentationStyle
         self.isEditProductsRelease2Enabled = isEditProductsRelease2Enabled
         self.isEditProductsRelease3Enabled = isEditProductsRelease3Enabled
-        self.productImageActionHandler = ProductImageActionHandler(siteID: product.siteID,
-                                                                   product: product)
+        self.productImageActionHandler = productImageActionHandler
         self.productUIImageLoader = DefaultProductUIImageLoader(productImageActionHandler: productImageActionHandler,
                                                                 phAssetImageLoaderProvider: { PHImageManager.default() })
-        switch product {
-        case let product as Product:
-            self.viewModel = ProductFormViewModel(product: product,
-                                                  productImageActionHandler: productImageActionHandler,
-                                                  isEditProductsRelease2Enabled: isEditProductsRelease2Enabled,
-                                                  isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
-        case let productVariation as ProductVariation:
-            self.viewModel = ProductVariationFormViewModel(productVariation: productVariation,
-                                                           productImageActionHandler: productImageActionHandler)
-        default:
-            fatalError()
-        }
-
-        self.tableViewModel = DefaultProductFormTableViewModel(product: product,
+        self.tableViewModel = DefaultProductFormTableViewModel(product: viewModel.productModel,
                                                                actionsFactory: viewModel.actionsFactory,
                                                                currency: currency)
         self.tableViewDataSource = ProductFormTableViewDataSource(viewModel: tableViewModel,
                                                                   productImageStatuses: productImageActionHandler.productImageStatuses,
                                                                   productUIImageLoader: productUIImageLoader,
                                                                   canEditImages: isEditProductsRelease2Enabled)
-        super.init(nibName: nil, bundle: nil)
+        super.init(nibName: "ProductFormViewController", bundle: nil)
         tableViewDataSource.configureActions(onNameChange: { [weak self] name in
             self?.onEditProductNameCompletion(newName: name ?? "")
         }, onAddImage: { [weak self] in
@@ -139,8 +127,174 @@ final class ProductFormViewController: UIViewController {
 
         view.endEditing(true)
     }
+
+    // MARK: - Navigation actions handling
+
+    override func shouldPopOnBackButton() -> Bool {
+        if viewModel.hasUnsavedChanges() {
+            presentBackNavigationActionSheet()
+            return false
+        }
+        return true
+    }
+
+    override func shouldPopOnSwipeBack() -> Bool {
+        return shouldPopOnBackButton()
+    }
+
+    // MARK: Navigation actions
+
+    @objc func updateProduct() {
+        ServiceLocator.analytics.track(.productDetailUpdateButtonTapped)
+        let title = NSLocalizedString("Publishing your product...", comment: "Title of the in-progress UI while updating the Product remotely")
+        let message = NSLocalizedString("Please wait while we publish this product to your store",
+                                        comment: "Message of the in-progress UI while updating the Product remotely")
+        let viewProperties = InProgressViewProperties(title: title, message: message)
+        let inProgressViewController = InProgressViewController(viewProperties: viewProperties)
+
+        // Before iOS 13, a modal with transparent background requires certain
+        // `modalPresentationStyle` to prevent the view from turning dark after being presented.
+        if #available(iOS 13.0, *) {} else {
+            inProgressViewController.modalPresentationStyle = .overCurrentContext
+        }
+
+        navigationController?.present(inProgressViewController, animated: true, completion: nil)
+
+        updateProductRemotely()
+    }
+
+    @objc func closeNavigationBarButtonTapped() {
+        guard viewModel.hasUnsavedChanges() == false else {
+            presentBackNavigationActionSheet()
+            return
+        }
+        exitForm()
+    }
+
+    // MARK: Action Sheet
+
+    /// More Options Action Sheet
+    ///
+    @objc func presentMoreOptionsActionSheet(_ sender: UIBarButtonItem) {
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        actionSheet.view.tintColor = .text
+
+        /// The "View product in store" action will be shown only if the product is published.
+        if viewModel.canViewProductInStore() {
+            actionSheet.addDefaultActionWithTitle(ActionSheetStrings.viewProduct) { [weak self] _ in
+                ServiceLocator.analytics.track(.productDetailViewProductButtonTapped)
+                self?.displayWebViewForProductInStore()
+            }
+        }
+
+        actionSheet.addDefaultActionWithTitle(ActionSheetStrings.share) { [weak self] _ in
+            ServiceLocator.analytics.track(.productDetailShareButtonTapped)
+            self?.displayShareProduct()
+        }
+
+        actionSheet.addDefaultActionWithTitle(ActionSheetStrings.productSettings) { [weak self] _ in
+            ServiceLocator.analytics.track(.productDetailViewSettingsButtonTapped)
+            self?.displayProductSettings()
+        }
+
+        actionSheet.addCancelActionWithTitle(ActionSheetStrings.cancel) { _ in
+        }
+
+        let popoverController = actionSheet.popoverPresentationController
+        popoverController?.barButtonItem = sender
+
+        present(actionSheet, animated: true)
+    }
+
+    // MARK: - UITableViewDelegate
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        let section = tableViewModel.sections[indexPath.section]
+        switch section {
+        case .primaryFields(let rows):
+            let row = rows[indexPath.row]
+            switch row {
+            case .description:
+                ServiceLocator.analytics.track(.productDetailViewProductDescriptionTapped)
+                editProductDescription()
+            default:
+                break
+            }
+        case .settings(let rows):
+            let row = rows[indexPath.row]
+            switch row {
+            case .price:
+                ServiceLocator.analytics.track(.productDetailViewPriceSettingsTapped)
+                editPriceSettings()
+            case .shipping:
+                ServiceLocator.analytics.track(.productDetailViewShippingSettingsTapped)
+                editShippingSettings()
+            case .inventory:
+                ServiceLocator.analytics.track(.productDetailViewInventorySettingsTapped)
+                editInventorySettings()
+            case .categories:
+                // TODO-2509 Edit Product M3 analytics
+                editCategories()
+            case .tags:
+                // TODO-2509 Edit Product M3 analytics
+                editTags()
+            case .briefDescription:
+                ServiceLocator.analytics.track(.productDetailViewShortDescriptionTapped)
+                editBriefDescription()
+            case .externalURL:
+                // TODO-2509 Edit Product M3 analytics
+                editExternalLink()
+                break
+            case .sku:
+                // TODO-2509 Edit Product M3 analytics
+                editSKU()
+                break
+            case .groupedProducts:
+                editGroupedProducts()
+                break
+            case .variations:
+                // TODO-2509 Edit Product M3 analytics
+                guard let product = product as? Product else {
+                    return
+                }
+                guard product.variations.isNotEmpty else {
+                    return
+                }
+                let variationsViewController = ProductVariationsViewController(siteID: product.siteID,
+                                                                               productID: product.productID,
+                                                                               isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
+                show(variationsViewController, sender: self)
+            }
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        let section = tableViewModel.sections[section]
+        switch section {
+        case .settings:
+            return Constants.settingsHeaderHeight
+        default:
+            return 0
+        }
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let section = tableViewModel.sections[section]
+        switch section {
+        case .settings:
+            let clearView = UIView(frame: .zero)
+            clearView.backgroundColor = .listBackground
+            return clearView
+        default:
+            return nil
+        }
+    }
 }
 
+// MARK: - Configuration
+//
 private extension ProductFormViewController {
     func configureNavigationBar() {
         updateNavigationBar(isUpdateEnabled: false)
@@ -193,14 +347,6 @@ private extension ProductFormViewController {
         }
     }
 
-    @objc func closeNavigationBarButtonTapped() {
-        guard viewModel.hasUnsavedChanges() == false else {
-            presentBackNavigationActionSheet()
-            return
-        }
-        exitForm()
-    }
-
     func configureMoreDetailsContainerView() {
         let title = NSLocalizedString("Add more details", comment: "Title of the button at the bottom of the product form to add more product details.")
         let viewModel = BottomButtonContainerView.ViewModel(style: .link,
@@ -229,7 +375,7 @@ private extension ProductFormViewController {
     }
 
     func observeProductName() {
-        cancellableProductName = viewModel.productName.subscribe { [weak self] name in
+        cancellableProductName = viewModel.productName?.subscribe { [weak self] name in
             self?.updateNavigationBarTitle(productName: name)
         }
     }
@@ -318,25 +464,6 @@ private extension ProductFormViewController {
 // MARK: Navigation actions
 //
 private extension ProductFormViewController {
-    @objc func updateProduct() {
-        ServiceLocator.analytics.track(.productDetailUpdateButtonTapped)
-        let title = NSLocalizedString("Publishing your product...", comment: "Title of the in-progress UI while updating the Product remotely")
-        let message = NSLocalizedString("Please wait while we publish this product to your store",
-                                        comment: "Message of the in-progress UI while updating the Product remotely")
-        let viewProperties = InProgressViewProperties(title: title, message: message)
-        let inProgressViewController = InProgressViewController(viewProperties: viewProperties)
-
-        // Before iOS 13, a modal with transparent background requires certain
-        // `modalPresentationStyle` to prevent the view from turning dark after being presented.
-        if #available(iOS 13.0, *) {} else {
-            inProgressViewController.modalPresentationStyle = .overCurrentContext
-        }
-
-        navigationController?.present(inProgressViewController, animated: true, completion: nil)
-
-        updateProductRemotely()
-    }
-
     func updateProductRemotely() {
         waitUntilAllImagesAreUploaded { [weak self] in
             self?.dispatchUpdateProductAndPasswordAction()
@@ -517,92 +644,6 @@ private extension ProductFormViewController {
     }
 }
 
-extension ProductFormViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        let section = tableViewModel.sections[indexPath.section]
-        switch section {
-        case .primaryFields(let rows):
-            let row = rows[indexPath.row]
-            switch row {
-            case .description:
-                ServiceLocator.analytics.track(.productDetailViewProductDescriptionTapped)
-                editProductDescription()
-            default:
-                break
-            }
-        case .settings(let rows):
-            let row = rows[indexPath.row]
-            switch row {
-            case .price:
-                ServiceLocator.analytics.track(.productDetailViewPriceSettingsTapped)
-                editPriceSettings()
-            case .shipping:
-                ServiceLocator.analytics.track(.productDetailViewShippingSettingsTapped)
-                editShippingSettings()
-            case .inventory:
-                ServiceLocator.analytics.track(.productDetailViewInventorySettingsTapped)
-                editInventorySettings()
-            case .categories:
-                // TODO-2509 Edit Product M3 analytics
-                editCategories()
-            case .tags:
-                // TODO-2509 Edit Product M3 analytics
-                editTags()
-            case .briefDescription:
-                ServiceLocator.analytics.track(.productDetailViewShortDescriptionTapped)
-                editBriefDescription()
-            case .externalURL:
-                // TODO-2509 Edit Product M3 analytics
-                editExternalLink()
-                break
-            case .sku:
-                // TODO-2509 Edit Product M3 analytics
-                editSKU()
-                break
-            case .groupedProducts:
-                editGroupedProducts()
-                break
-            case .variations:
-                // TODO-2509 Edit Product M3 analytics
-                guard let product = product as? Product else {
-                    return
-                }
-                guard product.variations.isNotEmpty else {
-                    return
-                }
-                let variationsViewController = ProductVariationsViewController(siteID: product.siteID,
-                                                                               productID: product.productID,
-                                                                               isEditProductsRelease3Enabled: isEditProductsRelease3Enabled)
-                show(variationsViewController, sender: self)
-            }
-        }
-    }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        let section = tableViewModel.sections[section]
-        switch section {
-        case .settings:
-            return Constants.settingsHeaderHeight
-        default:
-            return 0
-        }
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let section = tableViewModel.sections[section]
-        switch section {
-        case .settings:
-            let clearView = UIView(frame: .zero)
-            clearView.backgroundColor = .listBackground
-            return clearView
-        default:
-            return nil
-        }
-    }
-}
-
 // MARK: - Keyboard management
 //
 private extension ProductFormViewController {
@@ -654,20 +695,8 @@ private extension ProductFormViewController {
 
 // MARK: - Navigation actions handling
 //
-extension ProductFormViewController {
-    override func shouldPopOnBackButton() -> Bool {
-        if viewModel.hasUnsavedChanges() {
-            presentBackNavigationActionSheet()
-            return false
-        }
-        return true
-    }
-
-    override func shouldPopOnSwipeBack() -> Bool {
-        return shouldPopOnBackButton()
-    }
-
-    private func presentBackNavigationActionSheet() {
+private extension ProductFormViewController {
+    func presentBackNavigationActionSheet() {
         UIAlertController.presentDiscardChangesActionSheet(viewController: self, onDiscard: { [weak self] in
             guard let self = self else {
                 return
@@ -979,56 +1008,16 @@ private extension ProductFormViewController {
     }
 }
 
-// MARK: Action Sheet
-//
-private extension ProductFormViewController {
-
-    /// More Options Action Sheet
-    ///
-    @objc func presentMoreOptionsActionSheet(_ sender: UIBarButtonItem) {
-        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        actionSheet.view.tintColor = .text
-
-        /// The "View product in store" action will be shown only if the product is published.
-        if viewModel.canViewProductInStore() {
-            actionSheet.addDefaultActionWithTitle(ActionSheetStrings.viewProduct) { [weak self] _ in
-                ServiceLocator.analytics.track(.productDetailViewProductButtonTapped)
-                self?.displayWebViewForProductInStore()
-            }
-        }
-
-        actionSheet.addDefaultActionWithTitle(ActionSheetStrings.share) { [weak self] _ in
-            ServiceLocator.analytics.track(.productDetailShareButtonTapped)
-            self?.displayShareProduct()
-        }
-
-        actionSheet.addDefaultActionWithTitle(ActionSheetStrings.productSettings) { [weak self] _ in
-            ServiceLocator.analytics.track(.productDetailViewSettingsButtonTapped)
-            self?.displayProductSettings()
-        }
-
-        actionSheet.addCancelActionWithTitle(ActionSheetStrings.cancel) { _ in
-        }
-
-        let popoverController = actionSheet.popoverPresentationController
-        popoverController?.barButtonItem = sender
-
-        present(actionSheet, animated: true)
-    }
-
-    enum ActionSheetStrings {
-        static let viewProduct = NSLocalizedString("View Product in Store",
-                                                   comment: "Button title View product in store in Edit Product More Options Action Sheet")
-        static let share = NSLocalizedString("Share", comment: "Button title Share in Edit Product More Options Action Sheet")
-        static let productSettings = NSLocalizedString("Product Settings", comment: "Button title Product Settings in Edit Product More Options Action Sheet")
-        static let cancel = NSLocalizedString("Cancel", comment: "Button title Cancel in Edit Product More Options Action Sheet")
-    }
-}
-
 // MARK: Constants
 //
-private extension ProductFormViewController {
-    enum Constants {
-        static let settingsHeaderHeight = CGFloat(16)
-    }
+private enum Constants {
+    static let settingsHeaderHeight = CGFloat(16)
+}
+
+private enum ActionSheetStrings {
+    static let viewProduct = NSLocalizedString("View Product in Store",
+                                               comment: "Button title View product in store in Edit Product More Options Action Sheet")
+    static let share = NSLocalizedString("Share", comment: "Button title Share in Edit Product More Options Action Sheet")
+    static let productSettings = NSLocalizedString("Product Settings", comment: "Button title Product Settings in Edit Product More Options Action Sheet")
+    static let cancel = NSLocalizedString("Cancel", comment: "Button title Cancel in Edit Product More Options Action Sheet")
 }

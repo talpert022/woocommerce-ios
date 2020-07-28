@@ -2,19 +2,19 @@ import Yosemite
 
 /// Provides data for product form UI on a ProductVariation, and handles product editing actions.
 final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
+    typealias ProductModel = ProductVariation
+
     /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
-    var observableProduct: Observable<ProductFormDataModel> {
+    var observableProduct: Observable<ProductVariation> {
         productSubject
     }
 
-    var productValue: ProductFormDataModel & TaxClassRequestable {
+    var productModel: ProductVariation {
         productVariation
     }
 
     /// Emits product name on change.
-    var productName: Observable<String> {
-        productNameSubject
-    }
+    private(set) var productName: Observable<String>? = nil
 
     /// Emits a boolean of whether the product has unsaved changes for remote update.
     var isUpdateEnabled: Observable<Bool> {
@@ -24,8 +24,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     /// Creates actions available on the bottom sheet.
     private(set) var actionsFactory: ProductFormActionsFactoryProtocol
 
-    private let productSubject: PublishSubject<ProductFormDataModel> = PublishSubject<ProductFormDataModel>()
-    private let productNameSubject: PublishSubject<String> = PublishSubject<String>()
+    private let productSubject: PublishSubject<ProductVariation> = PublishSubject<ProductVariation>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
 
     /// The product model before any potential edits; reset after a remote update.

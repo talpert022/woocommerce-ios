@@ -1,11 +1,15 @@
 import Yosemite
 
+/// A view model for `ProductFormViewController` to add/edit a generic product model (e.g. `Product` or `ProductVariation`).
+///
 protocol ProductFormViewModelProtocol {
-    /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
-    var observableProduct: Observable<ProductFormDataModel> { get }
+    associatedtype ProductModel: ProductFormDataModel & TaxClassRequestable
 
-    /// Emits product name on change.
-    var productName: Observable<String> { get }
+    /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
+    var observableProduct: Observable<ProductModel> { get }
+
+    /// Emits product name on change. If product name is not editable, `nil` is returned.
+    var productName: Observable<String>? { get }
 
     /// Emits a boolean of whether the product has unsaved changes for remote update.
     var isUpdateEnabled: Observable<Bool> { get }
@@ -13,8 +17,10 @@ protocol ProductFormViewModelProtocol {
     /// Creates actions available on the bottom sheet.
     var actionsFactory: ProductFormActionsFactoryProtocol { get }
 
-    var productValue: ProductFormDataModel & TaxClassRequestable { get }
+    /// The latest product value.
+    var productModel: ProductModel { get }
 
+    /// The latest product password, if the product is password protected.
     var password: String? { get }
 
     // Unsaved changes
@@ -76,13 +82,15 @@ protocol ProductFormViewModelProtocol {
 
 /// Provides data for product form UI, and handles product editing actions.
 final class ProductFormViewModel: ProductFormViewModelProtocol {
+    typealias ProductModel = Product
+
     /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
-    var observableProduct: Observable<ProductFormDataModel> {
+    var observableProduct: Observable<Product> {
         productSubject
     }
 
     /// Emits product name on change.
-    var productName: Observable<String> {
+    var productName: Observable<String>? {
         productNameSubject
     }
 
@@ -91,14 +99,14 @@ final class ProductFormViewModel: ProductFormViewModelProtocol {
         isUpdateEnabledSubject
     }
 
-    var productValue: ProductFormDataModel & TaxClassRequestable {
+    var productModel: Product {
         product
     }
 
     /// Creates actions available on the bottom sheet.
     private(set) var actionsFactory: ProductFormActionsFactoryProtocol
 
-    private let productSubject: PublishSubject<ProductFormDataModel> = PublishSubject<ProductFormDataModel>()
+    private let productSubject: PublishSubject<Product> = PublishSubject<Product>()
     private let productNameSubject: PublishSubject<String> = PublishSubject<String>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
 

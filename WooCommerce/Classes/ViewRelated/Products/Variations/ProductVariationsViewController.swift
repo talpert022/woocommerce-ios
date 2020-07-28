@@ -230,7 +230,12 @@ extension ProductVariationsViewController: UITableViewDelegate {
 
             let currencyCode = CurrencySettings.shared.currencyCode
             let currency = CurrencySettings.shared.symbol(from: currencyCode)
-            let viewController = ProductFormViewController(product: productVariation,
+            let productImageActionHandler = ProductImageActionHandler(siteID: productVariation.siteID,
+                                                                      product: productVariation)
+            let viewModel = ProductVariationFormViewModel(productVariation: productVariation,
+                                                          productImageActionHandler: productImageActionHandler)
+            let viewController = ProductFormViewController(viewModel: viewModel,
+                                                           productImageActionHandler: productImageActionHandler,
                                                            currency: currency,
                                                            presentationStyle: .navigationStack,
                                                            isEditProductsRelease2Enabled: true,
