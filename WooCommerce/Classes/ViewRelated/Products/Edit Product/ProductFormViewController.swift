@@ -132,7 +132,7 @@ final class ProductFormViewController<ViewModel: ProductFormViewModelProtocol>: 
     // MARK: - Navigation actions handling
 
     override func shouldPopOnBackButton() -> Bool {
-        if viewModel.hasUnsavedChanges() {
+        guard viewModel.hasUnsavedChanges() == false else {
             presentBackNavigationActionSheet()
             return false
         }
@@ -257,10 +257,7 @@ final class ProductFormViewController<ViewModel: ProductFormViewModelProtocol>: 
                 break
             case .variations:
                 // TODO-2509 Edit Product M3 analytics
-                guard let product = product as? Product else {
-                    return
-                }
-                guard product.variations.isNotEmpty else {
+                guard let product = product as? Product, product.variations.isNotEmpty else {
                     return
                 }
                 let variationsViewController = ProductVariationsViewController(siteID: product.siteID,
@@ -900,6 +897,10 @@ private extension ProductFormViewController {
 
 private extension ProductFormViewController {
     func editTags() {
+        guard let product = product as? Product else {
+            return
+        }
+
         let tagsViewController = ProductTagsViewController(product: product) { [weak self] (tags) in
             self?.onEditTagsCompletion(tags: tags)
         }
@@ -907,6 +908,10 @@ private extension ProductFormViewController {
     }
 
     func onEditTagsCompletion(tags: [ProductTag]) {
+        guard let product = product as? Product else {
+            return
+        }
+
         defer {
             navigationController?.popViewController(animated: true)
         }
