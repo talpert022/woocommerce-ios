@@ -6,11 +6,15 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
 
     /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
     var observableProduct: Observable<ProductVariation> {
-        productSubject
+        productVariationSubject
     }
 
     var productModel: ProductVariation {
         productVariation
+    }
+
+    var password: String? {
+        nil
     }
 
     /// Emits product name on change.
@@ -24,7 +28,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     /// Creates actions available on the bottom sheet.
     private(set) var actionsFactory: ProductFormActionsFactoryProtocol
 
-    private let productSubject: PublishSubject<ProductVariation> = PublishSubject<ProductVariation>()
+    private let productVariationSubject: PublishSubject<ProductVariation> = PublishSubject<ProductVariation>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
 
     /// The product model before any potential edits; reset after a remote update.
@@ -46,22 +50,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
             }
 
             actionsFactory = ProductVariationFormActionsFactory(productVariation: productVariation)
-            productSubject.send(productVariation)
-        }
-    }
-
-    /// The product password, fetched in Product Settings
-    private var originalPassword: String? {
-        didSet {
-            password = originalPassword
-        }
-    }
-
-    private(set) var password: String? {
-        didSet {
-            if password != oldValue {
-                isUpdateEnabledSubject.send(hasUnsavedChanges())
-            }
+            productVariationSubject.send(productVariation)
         }
     }
 
@@ -89,7 +78,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     }
 
     func hasUnsavedChanges() -> Bool {
-        return productVariation != originalProductVariation || productImageActionHandler.productImageStatuses.hasPendingUpload || password != originalPassword
+        return productVariation != originalProductVariation || productImageActionHandler.productImageStatuses.hasPendingUpload
     }
 
     func hasProductChanged() -> Bool {
@@ -97,13 +86,21 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     }
 
     func hasPasswordChanged() -> Bool {
-        return password != nil && password != originalPassword
+        // no-op
+        return false
+    }
+}
+
+// MARK: - More menu
+//
+extension ProductVariationFormViewModel {
+    func canEditProductSettings() -> Bool {
+        return false
     }
 
     func canViewProductInStore() -> Bool {
         // no-op
         return false
-//        return originalProduct.productStatus == .publish
     }
 }
 
@@ -112,7 +109,6 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
 extension ProductVariationFormViewModel {
     func updateName(_ name: String) {
         // no-op
-//        productVariation = productVariation.copy(name: name)
     }
 
     func updateImages(_ images: [ProductImage]) {
@@ -218,7 +214,6 @@ extension ProductVariationFormViewModel {
     }
 
     func resetPassword(_ password: String?) {
-        originalPassword = password
-        isUpdateEnabledSubject.send(hasUnsavedChanges())
+        // no-op
     }
 }
