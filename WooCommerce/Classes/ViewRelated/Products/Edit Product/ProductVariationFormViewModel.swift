@@ -9,15 +9,15 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
         productVariationSubject
     }
 
+    /// The latest product variation including potential edits.
     var productModel: ProductVariation {
         productVariation
     }
 
-    var password: String? {
-        nil
-    }
+    /// Not applicable to product variation form
+    private(set) var password: String? = nil
 
-    /// Emits product name on change.
+    /// Not applicable to product variation form
     private(set) var productName: Observable<String>? = nil
 
     /// Emits a boolean of whether the product has unsaved changes for remote update.
@@ -31,31 +31,27 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     private let productVariationSubject: PublishSubject<ProductVariation> = PublishSubject<ProductVariation>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
 
-    /// The product model before any potential edits; reset after a remote update.
+    /// The product variation before any potential edits; reset after a remote update.
     private var originalProductVariation: ProductVariation {
         didSet {
             productVariation = originalProductVariation
         }
     }
 
-    /// The product model with potential edits; reset after a remote update.
+    /// The product variation with potential edits; reset after a remote update.
     private var productVariation: ProductVariation {
         didSet {
             guard productVariation != oldValue else {
                 return
             }
 
-            defer {
-                isUpdateEnabledSubject.send(hasUnsavedChanges())
-            }
-
             actionsFactory = ProductVariationFormActionsFactory(productVariation: productVariation)
             productVariationSubject.send(productVariation)
+            isUpdateEnabledSubject.send(hasUnsavedChanges())
         }
     }
 
     private let productImageActionHandler: ProductImageActionHandler
-
     private var cancellable: ObservationToken?
 
     init(productVariation: ProductVariation,
@@ -65,7 +61,6 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
         self.productVariation = productVariation
         self.actionsFactory = ProductVariationFormActionsFactory(productVariation: productVariation)
         self.isUpdateEnabledSubject = PublishSubject<Bool>()
-
         self.cancellable = productImageActionHandler.addUpdateObserver(self) { [weak self] allStatuses in
             if allStatuses.productImageStatuses.hasPendingUpload {
                 self?.isUpdateEnabledSubject.send(true)
@@ -112,9 +107,9 @@ extension ProductVariationFormViewModel {
     }
 
     func updateImages(_ images: [ProductImage]) {
-        // TODO-jc
-        if images.count > 1 {
-            // TODO-jc: Log error
+        guard images.count <= 1 else {
+            assertionFailure("Up to 1 image can be attached to a product variation.")
+            return
         }
         productVariation = productVariation.copy(image: images.first)
     }
@@ -186,7 +181,7 @@ extension ProductVariationFormViewModel {
     }
 }
 
-// MARK: Reset actions
+// MARK: Remote actions
 //
 extension ProductVariationFormViewModel {
     func updateProductRemotely(onCompletion: @escaping (Result<ProductVariation, ProductUpdateError>) -> Void) {
@@ -194,25 +189,22 @@ extension ProductVariationFormViewModel {
             switch result {
             case .failure(let error):
                 onCompletion(.failure(error))
-            case .success(let product):
-                self?.resetProduct(product)
-                onCompletion(.success(product))
+            case .success(let productVariation):
+                self?.resetProductVariation(productVariation)
+                onCompletion(.success(productVariation))
             }
         }
         ServiceLocator.stores.dispatch(updateAction)
+    }
+
+    private func resetProductVariation(_ productVariation: ProductVariation) {
+        originalProductVariation = productVariation
     }
 }
 
 // MARK: Reset actions
 //
 extension ProductVariationFormViewModel {
-    private func resetProduct(_ product: ProductFormDataModel) {
-        guard let productVariation = product as? ProductVariation else {
-            return
-        }
-        originalProductVariation = productVariation
-    }
-
     func resetPassword(_ password: String?) {
         // no-op
     }
