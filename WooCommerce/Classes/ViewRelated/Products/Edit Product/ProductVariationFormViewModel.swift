@@ -1,10 +1,10 @@
 import Yosemite
 
-/// Provides data for product form UI on a ProductVariation, and handles product editing actions.
+/// Provides data for product form UI on a `ProductVariation`, and handles product editing actions.
 final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     typealias ProductModel = ProductVariation
 
-    /// Emits product on change, except when the product name is the only change (`productName` is emitted for this case).
+    /// Emits product variation on change.
     var observableProduct: Observable<ProductVariation> {
         productVariationSubject
     }
@@ -14,7 +14,7 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
         productVariation
     }
 
-    /// Emits a boolean of whether the product has unsaved changes for remote update.
+    /// Emits a boolean of whether the product variation has unsaved changes for remote update.
     var isUpdateEnabled: Observable<Bool> {
         isUpdateEnabledSubject
     }

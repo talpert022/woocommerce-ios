@@ -76,13 +76,15 @@ final class ProductVariationFormViewModel_ObservablesTests: XCTestCase {
             isProductUpdated = true
         }
 
-        var updatedUpdateEnabled: Bool?
-        cancellableUpdateEnabled = viewModel.isUpdateEnabled.subscribe { isUpdateEnabled in
-            updatedUpdateEnabled = isUpdateEnabled
-        }
-
         // Action
-        productImageActionHandler.uploadMediaAssetToSiteMediaLibrary(asset: PHAsset())
+        var updatedUpdateEnabled: Bool?
+        waitForExpectation { expectation in
+            cancellableUpdateEnabled = viewModel.isUpdateEnabled.subscribe { isUpdateEnabled in
+                updatedUpdateEnabled = isUpdateEnabled
+                expectation.fulfill()
+            }
+            productImageActionHandler.uploadMediaAssetToSiteMediaLibrary(asset: PHAsset())
+        }
 
         // Assert
         XCTAssertNil(isProductUpdated)
