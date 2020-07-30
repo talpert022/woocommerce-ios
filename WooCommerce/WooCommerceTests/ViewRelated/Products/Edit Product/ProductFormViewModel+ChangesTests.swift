@@ -90,18 +90,18 @@ final class ProductFormViewModel_ChangesTests: XCTestCase {
                                              productImageActionHandler: productImageActionHandler,
                                              isEditProductsRelease2Enabled: true,
                                              isEditProductsRelease3Enabled: false)
-        let expectation = self.expectation(description: "Wait for image upload")
-        productImageActionHandler.addUpdateObserver(self) { statuses in
-            if statuses.productImageStatuses.isNotEmpty {
-                expectation.fulfill()
-            }
-        }
 
         // Action
-        productImageActionHandler.uploadMediaAssetToSiteMediaLibrary(asset: PHAsset())
+        waitForExpectation { expectation in
+            productImageActionHandler.addUpdateObserver(self) { statuses in
+                if statuses.productImageStatuses.isNotEmpty {
+                    expectation.fulfill()
+                }
+            }
+            productImageActionHandler.uploadMediaAssetToSiteMediaLibrary(asset: PHAsset())
+        }
 
         // Assert
-        waitForExpectations(timeout: Constants.expectationTimeout, handler: nil)
         XCTAssertTrue(viewModel.hasUnsavedChanges())
         XCTAssertFalse(viewModel.hasProductChanged())
         XCTAssertFalse(viewModel.hasPasswordChanged())

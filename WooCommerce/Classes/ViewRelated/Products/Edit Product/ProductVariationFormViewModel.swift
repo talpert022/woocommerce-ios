@@ -14,12 +14,6 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
         productVariation
     }
 
-    /// Not applicable to product variation form
-    private(set) var password: String? = nil
-
-    /// Not applicable to product variation form
-    private(set) var productName: Observable<String>? = nil
-
     /// Emits a boolean of whether the product has unsaved changes for remote update.
     var isUpdateEnabled: Observable<Bool> {
         isUpdateEnabledSubject
@@ -27,6 +21,12 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
 
     /// Creates actions available on the bottom sheet.
     private(set) var actionsFactory: ProductFormActionsFactoryProtocol
+
+    /// Not applicable to product variation form
+    private(set) var password: String? = nil
+
+    /// Not applicable to product variation form
+    private(set) var productName: Observable<String>? = nil
 
     private let productVariationSubject: PublishSubject<ProductVariation> = PublishSubject<ProductVariation>()
     private let isUpdateEnabledSubject: PublishSubject<Bool>
@@ -52,11 +52,14 @@ final class ProductVariationFormViewModel: ProductFormViewModelProtocol {
     }
 
     private let productImageActionHandler: ProductImageActionHandler
+    private let storesManager: StoresManager
     private var cancellable: ObservationToken?
 
     init(productVariation: ProductVariation,
-         productImageActionHandler: ProductImageActionHandler) {
+         productImageActionHandler: ProductImageActionHandler,
+         storesManager: StoresManager = ServiceLocator.stores) {
         self.productImageActionHandler = productImageActionHandler
+        self.storesManager = storesManager
         self.originalProductVariation = productVariation
         self.productVariation = productVariation
         self.actionsFactory = ProductVariationFormActionsFactory(productVariation: productVariation)
@@ -194,11 +197,12 @@ extension ProductVariationFormViewModel {
                 onCompletion(.success(productVariation))
             }
         }
-        ServiceLocator.stores.dispatch(updateAction)
+        storesManager.dispatch(updateAction)
     }
 
     private func resetProductVariation(_ productVariation: ProductVariation) {
         originalProductVariation = productVariation
+        isUpdateEnabledSubject.send(hasUnsavedChanges())
     }
 }
 
