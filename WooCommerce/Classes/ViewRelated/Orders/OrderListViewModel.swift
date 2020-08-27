@@ -14,7 +14,7 @@ import protocol Storage.StorageManagerType
 /// in here but grab it from the `SessionManager` when we need it. Hopefully, we will be able to
 /// fix this in the future.
 ///
-final class OrdersViewModel {
+final class OrderListViewModel {
     /// The reasons passed to `SyncCoordinator` when synchronizing.
     ///
     /// We're only currently tracking one reason.
@@ -241,7 +241,7 @@ final class OrdersViewModel {
 
 // MARK: - Remote Notifications Observation
 
-private extension OrdersViewModel {
+private extension OrderListViewModel {
     /// Watch for "new order" Remote Notifications that are received while the app is in the
     /// foreground.
     ///
@@ -264,8 +264,8 @@ private extension OrdersViewModel {
 
 // MARK: - TableView Support
 
-extension OrdersViewModel {
-    /// Returns an `OrdersViewModel` instance for the `StorageOrder` at the given `indexPath`.
+extension OrderListViewModel {
+    /// Returns an `OrderListViewModel` instance for the `StorageOrder` at the given `indexPath`.
     ///
     /// TODO Ideally we should have a very tiny ViewModel for the cell instead of
     /// `OrderDetailsViewModel` which is used in `OrderDetailsViewController` too.
@@ -311,7 +311,7 @@ extension OrdersViewModel {
 
 // MARK: - Constants
 
-extension OrdersViewModel {
+extension OrderListViewModel {
     enum Defaults {
         static let pageFirstIndex = SyncingCoordinator.Defaults.pageFirstIndex
     }
