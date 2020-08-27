@@ -10,17 +10,17 @@ import XLPagerTabStrip
 
 private typealias SyncReason = OrdersViewModel.SyncReason
 
-protocol OrdersViewControllerDelegate: class {
-    /// Called when `OrdersViewController` is about to fetch Orders from the API.
+protocol OrderListViewControllerDelegate: class {
+    /// Called when `OrderListViewController` is about to fetch Orders from the API.
     ///
-    func ordersViewControllerWillSynchronizeOrders(_ viewController: OrdersViewController)
+    func ordersViewControllerWillSynchronizeOrders(_ viewController: OrderListViewController)
 }
 
-/// OrdersViewController: Displays the list of Orders associated to the active Store / Account.
+/// OrderListViewController: Displays the list of Orders associated to the active Store / Account.
 ///
-final class OrdersViewController: UIViewController {
+final class OrderListViewController: UIViewController {
 
-    weak var delegate: OrdersViewControllerDelegate?
+    weak var delegate: OrderListViewControllerDelegate?
 
     private let viewModel: OrdersViewModel
 
@@ -135,7 +135,7 @@ final class OrdersViewController: UIViewController {
 
 // MARK: - User Interface Initialization
 //
-private extension OrdersViewController {
+private extension OrderListViewController {
     /// Initialize ViewModel operations
     ///
     func configureViewModel() {
@@ -242,7 +242,7 @@ private extension OrdersViewController {
 
 // MARK: - Notifications
 //
-extension OrdersViewController {
+extension OrderListViewController {
 
     /// Wires all of the Notification Hooks
     ///
@@ -261,7 +261,7 @@ extension OrdersViewController {
 
 // MARK: - Actions
 //
-extension OrdersViewController {
+extension OrderListViewController {
     @objc func pullToRefresh(sender: UIRefreshControl) {
         ServiceLocator.analytics.track(.ordersListPulledToRefresh)
         delegate?.ordersViewControllerWillSynchronizeOrders(self)
@@ -273,7 +273,7 @@ extension OrdersViewController {
 
 // MARK: - Sync'ing Helpers
 //
-extension OrdersViewController: SyncingCoordinatorDelegate {
+extension OrderListViewController: SyncingCoordinatorDelegate {
 
     /// Synchronizes the Orders for the Default Store (if any).
     ///
@@ -313,7 +313,7 @@ extension OrdersViewController: SyncingCoordinatorDelegate {
 
 // MARK: - Spinner Helpers
 //
-extension OrdersViewController {
+extension OrderListViewController {
 
     /// Starts the Footer Spinner animation, whenever `mustStartFooterSpinner` returns *true*.
     ///
@@ -345,7 +345,7 @@ extension OrdersViewController {
 
 // MARK: - Placeholders & Ghostable Table
 //
-private extension OrdersViewController {
+private extension OrderListViewController {
 
     /// Renders the Placeholder Orders
     ///
@@ -432,7 +432,7 @@ private extension OrdersViewController {
 
 // MARK: - Convenience Methods
 //
-private extension OrdersViewController {
+private extension OrderListViewController {
 
     func lookUpOrderStatus(for order: Order?) -> OrderStatus? {
         guard let order = order else {
@@ -450,7 +450,7 @@ private extension OrdersViewController {
 
 // MARK: - UITableViewDataSource Conformance
 //
-extension OrdersViewController: UITableViewDataSource {
+extension OrderListViewController: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
         viewModel.numberOfSections
@@ -491,7 +491,7 @@ extension OrdersViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate Conformance
 //
-extension OrdersViewController: UITableViewDelegate {
+extension OrderListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -526,7 +526,7 @@ extension OrdersViewController: UITableViewDelegate {
 
 // MARK: - Finite State Machine Management
 //
-private extension OrdersViewController {
+private extension OrderListViewController {
 
     func didEnter(state: State) {
         switch state {
@@ -571,10 +571,10 @@ private extension OrdersViewController {
 
 // MARK: - IndicatorInfoProvider Conformance
 
-// This conformance is not used directly by `OrdersViewController`. We only need this because
+// This conformance is not used directly by `OrderListViewController`. We only need this because
 // `Self` is used as a child of `OrdersMasterViewController` which is a
 // `ButtonBarPagerTabStripViewController`.
-extension OrdersViewController: IndicatorInfoProvider {
+extension OrderListViewController: IndicatorInfoProvider {
     /// Return `self.title` under `IndicatorInfo`.
     ///
     func indicatorInfo(for pagerTabStripController: PagerTabStripViewController) -> IndicatorInfo {
@@ -585,7 +585,7 @@ extension OrdersViewController: IndicatorInfoProvider {
 
 // MARK: - Nested Types
 //
-private extension OrdersViewController {
+private extension OrderListViewController {
 
     enum Settings {
         static let estimatedHeaderHeight = CGFloat(43)
