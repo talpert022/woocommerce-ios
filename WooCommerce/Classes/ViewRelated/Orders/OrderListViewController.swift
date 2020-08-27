@@ -258,7 +258,7 @@ extension OrderListViewController {
 extension OrderListViewController {
     @objc func pullToRefresh(sender: UIRefreshControl) {
         ServiceLocator.analytics.track(.ordersListPulledToRefresh)
-        delegate?.ordersViewControllerWillSynchronizeOrders(self)
+        delegate?.ordersViewControllerWillSynchronizeOrders()
         syncingCoordinator.resynchronize(reason: SyncReason.pullToRefresh.rawValue) {
             sender.endRefreshing()
         }
@@ -374,7 +374,7 @@ private extension OrderListViewController {
                 return
             }
 
-            self.delegate?.ordersViewControllerWillSynchronizeOrders(self)
+            self.delegate?.ordersViewControllerWillSynchronizeOrders()
             self.sync(pageNumber: pageNumber, pageSize: pageSize, reason: reason)
         }
 

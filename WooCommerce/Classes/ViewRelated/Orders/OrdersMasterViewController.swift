@@ -119,7 +119,7 @@ final class OrdersMasterViewController: ButtonBarPagerTabStripViewController {
 // MARK: - OrdersViewControllerDelegate
 
 extension OrdersMasterViewController: OrdersViewControllerDelegate {
-    func ordersViewControllerWillSynchronizeOrders(_ viewController: OrdersViewController) {
+    func ordersViewControllerWillSynchronizeOrders() {
         viewModel.syncOrderStatuses()
     }
 }
