@@ -171,36 +171,68 @@ extension OrdersMasterViewController {
             slug: OrderStatusEnum.processing.rawValue,
             total: 0
         )
+
         // We're intentionally not using `processingOrderStatus` as the source of the "Processing"
         // text in here. We want the string to be translated.
-        let processingOrdersVC = OrdersViewController(
-            title: Localization.processingTitle,
-            viewModel: OrdersViewModel(statusFilter: processingOrderStatus),
-            emptyStateConfig: .simple(
-                message: NSAttributedString(string: Localization.processingEmptyStateMessage),
-                image: .waitingForCustomersImage
+        if #available(iOS 13.0, *) {
+            let processingOrdersVC = OrderListViewController(
+                title: Localization.processingTitle,
+                viewModel: OrderListViewModel(statusFilter: processingOrderStatus),
+                emptyStateConfig: .simple(
+                    message: NSAttributedString(string: Localization.processingEmptyStateMessage),
+                    image: .waitingForCustomersImage
+                )
             )
-        )
-        processingOrdersVC.delegate = self
+            processingOrdersVC.delegate = self
 
-        return processingOrdersVC
+            return processingOrdersVC
+        } else {
+            let processingOrdersVC = OrdersViewController(
+                title: Localization.processingTitle,
+                viewModel: OrdersViewModel(statusFilter: processingOrderStatus),
+                emptyStateConfig: .simple(
+                    message: NSAttributedString(string: Localization.processingEmptyStateMessage),
+                    image: .waitingForCustomersImage
+                )
+            )
+            processingOrdersVC.delegate = self
+
+            return processingOrdersVC
+        }
     }
 
     func makeAllOrdersViewController() -> UIViewController {
-        let allOrdersVC = OrdersViewController(
-            title: Localization.allOrdersTitle,
-            viewModel: OrdersViewModel(statusFilter: nil, includesFutureOrders: false),
-            emptyStateConfig: .withLink(
-                message: NSAttributedString(string: Localization.allOrdersEmptyStateMessage),
-                image: .emptyOrdersImage,
-                details: Localization.allOrdersEmptyStateDetail,
-                linkTitle: Localization.learnMore,
-                linkURL: WooConstants.URLs.blog.asURL()
+        if #available(iOS 13.0, *) {
+            let allOrdersVC = OrderListViewController(
+                title: Localization.allOrdersTitle,
+                viewModel: OrderListViewModel(statusFilter: nil, includesFutureOrders: false),
+                emptyStateConfig: .withLink(
+                    message: NSAttributedString(string: Localization.allOrdersEmptyStateMessage),
+                    image: .emptyOrdersImage,
+                    details: Localization.allOrdersEmptyStateDetail,
+                    linkTitle: Localization.learnMore,
+                    linkURL: WooConstants.URLs.blog.asURL()
+                )
             )
-        )
-        allOrdersVC.delegate = self
+            allOrdersVC.delegate = self
 
-        return allOrdersVC
+            return allOrdersVC
+        } else {
+            let allOrdersVC = OrdersViewController(
+                title: Localization.allOrdersTitle,
+                viewModel: OrdersViewModel(statusFilter: nil, includesFutureOrders: false),
+                emptyStateConfig: .withLink(
+                    message: NSAttributedString(string: Localization.allOrdersEmptyStateMessage),
+                    image: .emptyOrdersImage,
+                    details: Localization.allOrdersEmptyStateDetail,
+                    linkTitle: Localization.learnMore,
+                    linkURL: WooConstants.URLs.blog.asURL()
+                )
+            )
+            allOrdersVC.delegate = self
+
+            return allOrdersVC
+        }
     }
 }
 
