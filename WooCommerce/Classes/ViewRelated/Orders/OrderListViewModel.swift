@@ -14,6 +14,7 @@ import protocol Storage.StorageManagerType
 /// in here but grab it from the `SessionManager` when we need it. Hopefully, we will be able to
 /// fix this in the future.
 ///
+@available(iOS 13.0, *)
 final class OrderListViewModel {
     /// The reasons passed to `SyncCoordinator` when synchronizing.
     ///
@@ -241,6 +242,7 @@ final class OrderListViewModel {
 
 // MARK: - Remote Notifications Observation
 
+@available(iOS 13.0, *)
 private extension OrderListViewModel {
     /// Watch for "new order" Remote Notifications that are received while the app is in the
     /// foreground.
@@ -264,6 +266,7 @@ private extension OrderListViewModel {
 
 // MARK: - TableView Support
 
+@available(iOS 13.0, *)
 extension OrderListViewModel {
     /// Returns an `OrderListViewModel` instance for the `StorageOrder` at the given `indexPath`.
     ///
@@ -311,6 +314,7 @@ extension OrderListViewModel {
 
 // MARK: - Constants
 
+@available(iOS 13.0, *)
 extension OrderListViewModel {
     enum Defaults {
         static let pageFirstIndex = SyncingCoordinator.Defaults.pageFirstIndex

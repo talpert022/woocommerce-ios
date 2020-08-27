@@ -8,10 +8,12 @@ import StoreKit
 // Used for protocol conformance of IndicatorInfoProvider only.
 import XLPagerTabStrip
 
+@available(iOS 13.0, *)
 private typealias SyncReason = OrderListViewModel.SyncReason
 
 /// OrderListViewController: Displays the list of Orders associated to the active Store / Account.
 ///
+@available(iOS 13.0, *)
 final class OrderListViewController: UIViewController {
 
     weak var delegate: OrdersViewControllerDelegate?
@@ -129,6 +131,7 @@ final class OrderListViewController: UIViewController {
 
 // MARK: - User Interface Initialization
 //
+@available(iOS 13.0, *)
 private extension OrderListViewController {
     /// Initialize ViewModel operations
     ///
@@ -236,6 +239,7 @@ private extension OrderListViewController {
 
 // MARK: - Notifications
 //
+@available(iOS 13.0, *)
 extension OrderListViewController {
 
     /// Wires all of the Notification Hooks
@@ -255,6 +259,7 @@ extension OrderListViewController {
 
 // MARK: - Actions
 //
+@available(iOS 13.0, *)
 extension OrderListViewController {
     @objc func pullToRefresh(sender: UIRefreshControl) {
         ServiceLocator.analytics.track(.ordersListPulledToRefresh)
@@ -267,6 +272,7 @@ extension OrderListViewController {
 
 // MARK: - Sync'ing Helpers
 //
+@available(iOS 13.0, *)
 extension OrderListViewController: SyncingCoordinatorDelegate {
 
     /// Synchronizes the Orders for the Default Store (if any).
@@ -307,6 +313,7 @@ extension OrderListViewController: SyncingCoordinatorDelegate {
 
 // MARK: - Spinner Helpers
 //
+@available(iOS 13.0, *)
 extension OrderListViewController {
 
     /// Starts the Footer Spinner animation, whenever `mustStartFooterSpinner` returns *true*.
@@ -339,6 +346,7 @@ extension OrderListViewController {
 
 // MARK: - Placeholders & Ghostable Table
 //
+@available(iOS 13.0, *)
 private extension OrderListViewController {
 
     /// Renders the Placeholder Orders
@@ -426,6 +434,7 @@ private extension OrderListViewController {
 
 // MARK: - Convenience Methods
 //
+@available(iOS 13.0, *)
 private extension OrderListViewController {
 
     func lookUpOrderStatus(for order: Order?) -> OrderStatus? {
@@ -444,6 +453,7 @@ private extension OrderListViewController {
 
 // MARK: - UITableViewDataSource Conformance
 //
+@available(iOS 13.0, *)
 extension OrderListViewController: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -485,6 +495,7 @@ extension OrderListViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate Conformance
 //
+@available(iOS 13.0, *)
 extension OrderListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -520,6 +531,7 @@ extension OrderListViewController: UITableViewDelegate {
 
 // MARK: - Finite State Machine Management
 //
+@available(iOS 13.0, *)
 private extension OrderListViewController {
 
     func didEnter(state: State) {
@@ -568,6 +580,7 @@ private extension OrderListViewController {
 // This conformance is not used directly by `OrderListViewController`. We only need this because
 // `Self` is used as a child of `OrdersMasterViewController` which is a
 // `ButtonBarPagerTabStripViewController`.
+@available(iOS 13.0, *)
 extension OrderListViewController: IndicatorInfoProvider {
     /// Return `self.title` under `IndicatorInfo`.
     ///
@@ -579,6 +592,7 @@ extension OrderListViewController: IndicatorInfoProvider {
 
 // MARK: - Nested Types
 //
+@available(iOS 13.0, *)
 private extension OrderListViewController {
 
     enum Settings {
