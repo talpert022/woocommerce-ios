@@ -8,7 +8,7 @@ import StoreKit
 // Used for protocol conformance of IndicatorInfoProvider only.
 import XLPagerTabStrip
 
-private typealias SyncReason = OrdersViewModel.SyncReason
+private typealias SyncReason = OrderListViewModel.SyncReason
 
 /// OrderListViewController: Displays the list of Orders associated to the active Store / Account.
 ///
@@ -16,7 +16,7 @@ final class OrderListViewController: UIViewController {
 
     weak var delegate: OrdersViewControllerDelegate?
 
-    private let viewModel: OrdersViewModel
+    private let viewModel: OrderListViewModel
 
     /// Main TableView.
     ///
@@ -86,7 +86,7 @@ final class OrderListViewController: UIViewController {
 
     /// Designated initializer.
     ///
-    init(title: String, viewModel: OrdersViewModel, emptyStateConfig: EmptyStateViewController.Config) {
+    init(title: String, viewModel: OrderListViewModel, emptyStateConfig: EmptyStateViewController.Config) {
         self.viewModel = viewModel
         self.emptyStateConfig = emptyStateConfig
 
