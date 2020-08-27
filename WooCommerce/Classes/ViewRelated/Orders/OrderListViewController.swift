@@ -29,12 +29,19 @@ final class OrderListViewController: UIViewController {
     ///
     private lazy var tableView = UITableView(frame: .zero, style: .grouped)
 
-    private lazy var dataSource = UITableViewDiffableDataSource<String, NSManagedObjectID>(tableView: tableView) { (tableView, indexPath, managedObjectID) -> UITableViewCell? in
+    private lazy var dataSource = UITableViewDiffableDataSource<String, NSManagedObjectID>(tableView: tableView) { [weak self] (tableView, indexPath, managedObjectID) -> UITableViewCell? in
         guard let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.reuseIdentifier, for: indexPath) as? OrderTableViewCell else {
+            #warning("add message :D")
             fatalError()
         }
+        guard let self = self else {
+            return cell
+        }
 
-        cell.textLabel?.text = "\(managedObjectID)"
+        let detailsViewModel = self.viewModel.detailsViewModel(withID: managedObjectID)
+        let orderStatus = self.lookUpOrderStatus(for: detailsViewModel?.order)
+        cell.configureCell(viewModel: detailsViewModel, orderStatus: orderStatus)
+        cell.layoutIfNeeded()
         return cell
     }
 

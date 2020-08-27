@@ -281,13 +281,22 @@ private extension OrderListViewModel {
 
 @available(iOS 13.0, *)
 extension OrderListViewModel {
+    #warning("replace ManagedObjectID usage")
+    func detailsViewModel(withID managedObjectID: NSManagedObjectID) -> OrderDetailsViewModel? {
+        guard let order = resultsController.object(withID: managedObjectID) else {
+            return nil
+        }
+
+        return OrderDetailsViewModel(order: order)
+    }
+
     /// Returns an `OrderListViewModel` instance for the `StorageOrder` at the given `indexPath`.
     ///
     /// TODO Ideally we should have a very tiny ViewModel for the cell instead of
     /// `OrderDetailsViewModel` which is used in `OrderDetailsViewController` too.
     ///
 //    func detailsViewModel(at indexPath: IndexPath) -> OrderDetailsViewModel? {
-//        guard let order = resultsController.safeObject(at: indexPath) else {
+//        guard let order = resultsController.object(at: indexPath) else {
 //            return nil
 //        }
 //

@@ -9,7 +9,7 @@ public final class DiffableResultsController: NSObject {
 
     private let storage: StorageType
 
-    private lazy var resultsController: NSFetchedResultsController<StorageOrder> = {
+    private lazy var wrappedController: NSFetchedResultsController<StorageOrder> = {
         let sortDescriptor = NSSortDescriptor(keyPath: \StorageOrder.dateCreated, ascending: false)
         let fetchRequest = NSFetchRequest<StorageOrder>(entityName: StorageOrder.entityName)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -31,7 +31,43 @@ public final class DiffableResultsController: NSObject {
     }
 
     public func performFetch() throws {
-        try resultsController.performFetch()
+        try wrappedController.performFetch()
+    }
+
+    /// Indicates if there are any Objects matching the specified criteria.
+    ///
+    public var isEmpty: Bool {
+        return wrappedController.fetchedObjects?.isEmpty ?? true
+    }
+
+    /// Returns the fetched object at the given `indexPath`. Returns `nil` if the `indexPath`
+    /// does not exist.
+    ///
+    public func object(at indexPath: IndexPath) -> Order? {
+        guard !isEmpty else {
+            return nil
+        }
+        guard let sections = wrappedController.sections, sections.count > indexPath.section else {
+            return nil
+        }
+
+        let section = sections[indexPath.section]
+
+        guard section.numberOfObjects > indexPath.row else {
+            return nil
+        }
+
+        return wrappedController.object(at: indexPath).toReadOnly()
+    }
+
+    public func object(withID managedObjectID: NSManagedObjectID) -> Order? {
+        #warning("we don't want NSManagedObjectID :D. Fix this later")
+        let context = storage as! NSManagedObjectContext
+        if let storageOrder = try? context.existingObject(with: managedObjectID) as? StorageOrder {
+            return storageOrder.toReadOnly()
+        } else {
+            return nil
+        }
     }
 }
 
