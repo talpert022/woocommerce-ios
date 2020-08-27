@@ -1,9 +1,14 @@
 import UIKit
-import Gridicons
-import Yosemite
-import WordPressUI
+import Combine
 import SafariServices
 import StoreKit
+
+import Gridicons
+import WordPressUI
+
+import Yosemite
+#warning("we should not reference Core DAta")
+import CoreData
 
 // Used for protocol conformance of IndicatorInfoProvider only.
 import XLPagerTabStrip
@@ -23,6 +28,17 @@ final class OrderListViewController: UIViewController {
     /// Main TableView.
     ///
     private lazy var tableView = UITableView(frame: .zero, style: .grouped)
+
+    private lazy var dataSource = UITableViewDiffableDataSource<String, NSManagedObjectID>(tableView: tableView) { (tableView, indexPath, managedObjectID) -> UITableViewCell? in
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.reuseIdentifier, for: indexPath) as? OrderTableViewCell else {
+            fatalError()
+        }
+
+        cell.textLabel?.text = "\(managedObjectID)"
+        return cell
+    }
+
+    private var cancellables = [AnyCancellable]()
 
     /// Ghostable TableView.
     ///
@@ -101,6 +117,12 @@ final class OrderListViewController: UIViewController {
         fatalError("Not supported")
     }
 
+    deinit {
+        cancellables.forEach {
+            $0.cancel()
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -149,6 +171,11 @@ private extension OrderListViewController {
 
         viewModel.activateAndForwardUpdates(to: tableView)
 
+        let cancellable = viewModel.snapshot.sink { snapshot in
+            self.dataSource.apply(snapshot)
+        }
+        cancellables.append(cancellable)
+
         // Reload table because the activate call above executes a performFetch()
         tableView.reloadData()
     }
@@ -185,7 +212,8 @@ private extension OrderListViewController {
     ///
     func configureTableView() {
         tableView.delegate = self
-        tableView.dataSource = self
+
+        tableView.dataSource = dataSource
 
         view.backgroundColor = .listBackground
         tableView.backgroundColor = .listBackground
@@ -333,7 +361,10 @@ extension OrderListViewController {
             return false
         }
 
-        return highestPageBeingSynced * SyncingCoordinator.Defaults.pageSize > viewModel.numberOfObjects
+        #warning("fix this")
+        return false
+
+//        return highestPageBeingSynced * SyncingCoordinator.Defaults.pageSize > viewModel.numberOfObjects
     }
 
     /// Stops animating the Footer Spinner.
@@ -453,44 +484,44 @@ private extension OrderListViewController {
 
 // MARK: - UITableViewDataSource Conformance
 //
-@available(iOS 13.0, *)
-extension OrderListViewController: UITableViewDataSource {
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.numberOfSections
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.numberOfRows(in: section)
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.reuseIdentifier, for: indexPath) as? OrderTableViewCell else {
-            fatalError()
-        }
-
-        let detailsViewModel = viewModel.detailsViewModel(at: indexPath)
-        let orderStatus = lookUpOrderStatus(for: detailsViewModel?.order)
-        cell.configureCell(viewModel: detailsViewModel, orderStatus: orderStatus)
-        cell.layoutIfNeeded()
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let reuseIdentifier = TwoColumnSectionHeaderView.reuseIdentifier
-        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier) as? TwoColumnSectionHeaderView else {
-            return nil
-        }
-
-        header.leftText = {
-            let rawAge = viewModel.sectionInfo(at: section).name
-            return Age(rawValue: rawAge)?.description
-        }()
-        header.rightText = nil
-
-        return header
-    }
-}
+//@available(iOS 13.0, *)
+//extension OrderListViewController: UITableViewDataSource {
+//
+//    func numberOfSections(in tableView: UITableView) -> Int {
+//        viewModel.numberOfSections
+//    }
+//
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        viewModel.numberOfRows(in: section)
+//    }
+//
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.reuseIdentifier, for: indexPath) as? OrderTableViewCell else {
+//            fatalError()
+//        }
+//
+//        let detailsViewModel = viewModel.detailsViewModel(at: indexPath)
+//        let orderStatus = lookUpOrderStatus(for: detailsViewModel?.order)
+//        cell.configureCell(viewModel: detailsViewModel, orderStatus: orderStatus)
+//        cell.layoutIfNeeded()
+//        return cell
+//    }
+//
+//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        let reuseIdentifier = TwoColumnSectionHeaderView.reuseIdentifier
+//        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: reuseIdentifier) as? TwoColumnSectionHeaderView else {
+//            return nil
+//        }
+//
+//        header.leftText = {
+//            let rawAge = viewModel.sectionInfo(at: section).name
+//            return Age(rawValue: rawAge)?.description
+//        }()
+//        header.rightText = nil
+//
+//        return header
+//    }
+//}
 
 
 // MARK: - UITableViewDelegate Conformance
@@ -505,27 +536,27 @@ extension OrderListViewController: UITableViewDelegate {
             return
         }
 
-        guard let orderDetailsViewModel = viewModel.detailsViewModel(at: indexPath) else {
-            return
-        }
-
-        guard let orderDetailsVC = OrderDetailsViewController.instantiatedViewControllerFromStoryboard() else {
-            assertionFailure("Expected OrderDetailsViewController to be instantiated")
-            return
-        }
-
-        orderDetailsVC.viewModel = orderDetailsViewModel
-
-        let order = orderDetailsViewModel.order
-        ServiceLocator.analytics.track(.orderOpen, withProperties: ["id": order.orderID,
-                                                                    "status": order.statusKey])
-
-        navigationController?.pushViewController(orderDetailsVC, animated: true)
+//        guard let orderDetailsViewModel = viewModel.detailsViewModel(at: indexPath) else {
+//            return
+//        }
+//
+//        guard let orderDetailsVC = OrderDetailsViewController.instantiatedViewControllerFromStoryboard() else {
+//            assertionFailure("Expected OrderDetailsViewController to be instantiated")
+//            return
+//        }
+//
+//        orderDetailsVC.viewModel = orderDetailsViewModel
+//
+//        let order = orderDetailsViewModel.order
+//        ServiceLocator.analytics.track(.orderOpen, withProperties: ["id": order.orderID,
+//                                                                    "status": order.statusKey])
+//
+//        navigationController?.pushViewController(orderDetailsVC, animated: true)
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let orderIndex = viewModel.objectIndex(from: indexPath)
-        syncingCoordinator.ensureNextPageIsSynchronized(lastVisibleIndex: orderIndex)
+//        let orderIndex = viewModel.objectIndex(from: indexPath)
+//        syncingCoordinator.ensureNextPageIsSynchronized(lastVisibleIndex: orderIndex)
     }
 }
 

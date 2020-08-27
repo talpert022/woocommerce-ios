@@ -1,5 +1,8 @@
 
-import Foundation
+import Combine
+#warning("we should not reference Core Data")
+import CoreData
+
 import Yosemite
 import class AutomatticTracks.CrashLogging
 import protocol Storage.StorageManagerType
@@ -55,34 +58,44 @@ final class OrderListViewModel {
 
     /// Should be bound to the UITableView to auto-update the list of Orders.
     ///
-    private lazy var resultsController: ResultsController<StorageOrder> = {
-        let descriptor = NSSortDescriptor(keyPath: \StorageOrder.dateCreated, ascending: false)
-
-        let sectionNameKeyPath = #selector(StorageOrder.normalizedAgeAsString)
-        let predicate: NSPredicate = {
-            let excludeSearchCache = NSPredicate(format: "exclusiveForSearch = false")
-            let excludeNonMatchingStatus = statusFilter.map { NSPredicate(format: "statusKey = %@", $0.slug) }
-
-            var predicates = [ excludeSearchCache, excludeNonMatchingStatus ].compactMap { $0 }
-            if !includesFutureOrders, let nextMidnight = Date().nextMidnight() {
-                // Exclude orders on and after midnight of today's date
-                let dateSubPredicate = NSPredicate(format: "dateCreated < %@", nextMidnight as NSDate)
-                predicates.append(dateSubPredicate)
-            }
-
-            return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-        }()
-
-        return ResultsController<StorageOrder>(storageManager: storageManager,
-                                               sectionNameKeyPath: "\(sectionNameKeyPath)",
-                                               matching: predicate,
-                                               sortedBy: [descriptor])
+    private lazy var resultsController: DiffableResultsController = {
+        DiffableResultsController(storage: self.storageManager.viewStorage)
     }()
 
+    var snapshot: AnyPublisher<NSDiffableDataSourceSnapshot<String, NSManagedObjectID>, Never> {
+        resultsController.snapshot
+    }
+
+//    private lazy var resultsController: ResultsController<StorageOrder> = {
+//        let descriptor = NSSortDescriptor(keyPath: \StorageOrder.dateCreated, ascending: false)
+//
+//        let sectionNameKeyPath = #selector(StorageOrder.normalizedAgeAsString)
+//        let predicate: NSPredicate = {
+//            let excludeSearchCache = NSPredicate(format: "exclusiveForSearch = false")
+//            let excludeNonMatchingStatus = statusFilter.map { NSPredicate(format: "statusKey = %@", $0.slug) }
+//
+//            var predicates = [ excludeSearchCache, excludeNonMatchingStatus ].compactMap { $0 }
+//            if !includesFutureOrders, let nextMidnight = Date().nextMidnight() {
+//                // Exclude orders on and after midnight of today's date
+//                let dateSubPredicate = NSPredicate(format: "dateCreated < %@", nextMidnight as NSDate)
+//                predicates.append(dateSubPredicate)
+//            }
+//
+//            return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+//        }()
+//
+//        return ResultsController<StorageOrder>(storageManager: storageManager,
+//                                               sectionNameKeyPath: "\(sectionNameKeyPath)",
+//                                               matching: predicate,
+//                                               sortedBy: [descriptor])
+//    }()
+//
     /// Indicates if there are no results.
     ///
     var isEmpty: Bool {
-        resultsController.isEmpty
+        #warning("fix this")
+        return false
+//        resultsController.isEmpty
     }
 
     init(storageManager: StorageManagerType = ServiceLocator.storageManager,
@@ -107,7 +120,7 @@ final class OrderListViewModel {
     /// And only when the corresponding view was loaded.
     ///
     func activateAndForwardUpdates(to tableView: UITableView) {
-        resultsController.startForwardingEvents(to: tableView)
+        #warning("remove tableView argument")
         performFetch()
 
         notificationCenter.addObserver(self, selector: #selector(handleAppDeactivation),
@@ -273,43 +286,43 @@ extension OrderListViewModel {
     /// TODO Ideally we should have a very tiny ViewModel for the cell instead of
     /// `OrderDetailsViewModel` which is used in `OrderDetailsViewController` too.
     ///
-    func detailsViewModel(at indexPath: IndexPath) -> OrderDetailsViewModel? {
-        guard let order = resultsController.safeObject(at: indexPath) else {
-            return nil
-        }
-
-        return OrderDetailsViewModel(order: order)
-    }
-
-    /// The number of DB results
-    ///
-    var numberOfObjects: Int {
-        resultsController.numberOfObjects
-    }
-
-    /// Converts the `rowIndexPath` to an `index` belonging to `numberOfObjects`.
-    ///
-    func objectIndex(from rowIndexPath: IndexPath) -> Int {
-        resultsController.objectIndex(from: rowIndexPath)
-    }
-
-    /// The number of sections that should be displayed
-    ///
-    var numberOfSections: Int {
-        resultsController.sections.count
-    }
-
-    /// Returns the number of rows in the given `section` index.
-    ///
-    func numberOfRows(in section: Int) -> Int {
-        resultsController.sections[section].numberOfObjects
-    }
-
-    /// Returns the `SectionInfo` for the given section index.
-    ///
-    func sectionInfo(at index: Int) -> ResultsController<StorageOrder>.SectionInfo {
-        resultsController.sections[index]
-    }
+//    func detailsViewModel(at indexPath: IndexPath) -> OrderDetailsViewModel? {
+//        guard let order = resultsController.safeObject(at: indexPath) else {
+//            return nil
+//        }
+//
+//        return OrderDetailsViewModel(order: order)
+//    }
+//
+//    /// The number of DB results
+//    ///
+//    var numberOfObjects: Int {
+//        resultsController.numberOfObjects
+//    }
+//
+//    /// Converts the `rowIndexPath` to an `index` belonging to `numberOfObjects`.
+//    ///
+//    func objectIndex(from rowIndexPath: IndexPath) -> Int {
+//        resultsController.objectIndex(from: rowIndexPath)
+//    }
+//
+//    /// The number of sections that should be displayed
+//    ///
+//    var numberOfSections: Int {
+//        resultsController.sections.count
+//    }
+//
+//    /// Returns the number of rows in the given `section` index.
+//    ///
+//    func numberOfRows(in section: Int) -> Int {
+//        resultsController.sections[section].numberOfObjects
+//    }
+//
+//    /// Returns the `SectionInfo` for the given section index.
+//    ///
+//    func sectionInfo(at index: Int) -> ResultsController<StorageOrder>.SectionInfo {
+//        resultsController.sections[index]
+//    }
 }
 
 // MARK: - Constants
