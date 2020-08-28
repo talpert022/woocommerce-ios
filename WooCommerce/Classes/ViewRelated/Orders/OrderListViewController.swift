@@ -368,10 +368,7 @@ extension OrderListViewController {
             return false
         }
 
-        #warning("fix this")
-        return false
-
-//        return highestPageBeingSynced * SyncingCoordinator.Defaults.pageSize > viewModel.numberOfObjects
+        return highestPageBeingSynced * SyncingCoordinator.Defaults.pageSize > viewModel.numberOfObjects
     }
 
     /// Stops animating the Footer Spinner.
@@ -562,8 +559,15 @@ extension OrderListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        let orderIndex = viewModel.objectIndex(from: indexPath)
-//        syncingCoordinator.ensureNextPageIsSynchronized(lastVisibleIndex: orderIndex)
+        guard let managedObjectID = dataSource.itemIdentifier(for: indexPath) else {
+            return
+        }
+
+        guard let orderIndex = viewModel.indexOfObject(managedObjectID) else {
+            return
+        }
+
+        syncingCoordinator.ensureNextPageIsSynchronized(lastVisibleIndex: orderIndex)
     }
 }
 

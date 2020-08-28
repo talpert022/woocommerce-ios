@@ -34,30 +34,18 @@ public final class DiffableResultsController: NSObject {
         try wrappedController.performFetch()
     }
 
+    public var numberOfObjects: Int {
+        snapshotSubject.value.numberOfItems
+    }
+
     /// Indicates if there are any Objects matching the specified criteria.
     ///
     public var isEmpty: Bool {
-        return wrappedController.fetchedObjects?.isEmpty ?? true
+        snapshotSubject.value.numberOfItems == 0
     }
 
-    /// Returns the fetched object at the given `indexPath`. Returns `nil` if the `indexPath`
-    /// does not exist.
-    ///
-    public func object(at indexPath: IndexPath) -> Order? {
-        guard !isEmpty else {
-            return nil
-        }
-        guard let sections = wrappedController.sections, sections.count > indexPath.section else {
-            return nil
-        }
-
-        let section = sections[indexPath.section]
-
-        guard section.numberOfObjects > indexPath.row else {
-            return nil
-        }
-
-        return wrappedController.object(at: indexPath).toReadOnly()
+    public func indexOfObject(_ managedObjectID: NSManagedObjectID) -> Int? {
+        snapshotSubject.value.indexOfItem(managedObjectID)
     }
 
     public func object(withID managedObjectID: NSManagedObjectID) -> Order? {
