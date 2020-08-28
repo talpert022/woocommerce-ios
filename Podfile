@@ -14,6 +14,10 @@ def aztec
   pod 'WordPress-Editor-iOS', '~> 1.11.0'
 end
 
+def wordpress_shared
+  pod 'WordPressShared', '~> 1.11'
+end
+
 # Main Target!
 # ============
 #
@@ -37,7 +41,7 @@ target 'WooCommerce' do
   # pod 'WordPressAuthenticator', :git => 'https://github.com/wordpress-mobile/WordPressAuthenticator-iOS.git', :branch => ''
   # pod 'WordPressAuthenticator', :path => '../WordPressAuthenticator-iOS'
 
-  pod 'WordPressShared', '~> 1.11'
+  wordpress_shared
 
   pod 'WordPressUI', '~> 1.7.1'
 
@@ -76,6 +80,7 @@ def yosemite_pods
   pod 'CocoaLumberjack/Swift', '~> 3.5'
 
   aztec
+  wordpress_shared
 end
 
 # Yosemite Target:
