@@ -1,11 +1,9 @@
 import Foundation
 import WordPressShared
-import Yosemite
-
 
 /// Encapsulates Storage.Order Interface Helpers: Used for Time Grouping
 ///
-extension StorageOrder {
+public extension StorageOrder {
 
     /// Returns a Section Identifier that can be sorted. Note that this string is not human readable, and
     /// you should convert the `rawValue` into an Age entity (and snap the `description` field).
