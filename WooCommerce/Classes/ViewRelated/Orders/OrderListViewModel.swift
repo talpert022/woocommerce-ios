@@ -281,9 +281,8 @@ private extension OrderListViewModel {
 
 @available(iOS 13.0, *)
 extension OrderListViewModel {
-    #warning("replace ManagedObjectID usage")
-    func detailsViewModel(withID managedObjectID: NSManagedObjectID) -> OrderDetailsViewModel? {
-        guard let order = resultsController.object(withID: managedObjectID) else {
+    func detailsViewModel(at indexPath: IndexPath) -> OrderDetailsViewModel? {
+        guard let order = resultsController.object(at: indexPath) else {
             return nil
         }
 

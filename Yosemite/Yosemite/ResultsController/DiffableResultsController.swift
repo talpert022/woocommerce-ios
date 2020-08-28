@@ -48,14 +48,8 @@ public final class DiffableResultsController: NSObject {
         snapshotSubject.value.indexOfItem(managedObjectID)
     }
 
-    public func object(withID managedObjectID: NSManagedObjectID) -> Order? {
-        #warning("we don't want NSManagedObjectID :D. Fix this later")
-        let context = storage as! NSManagedObjectContext
-        if let storageOrder = try? context.existingObject(with: managedObjectID) as? StorageOrder {
-            return storageOrder.toReadOnly()
-        } else {
-            return nil
-        }
+    public func object(at indexPath: IndexPath) -> Order? {
+        wrappedController.object(at: indexPath).toReadOnly()
     }
 }
 

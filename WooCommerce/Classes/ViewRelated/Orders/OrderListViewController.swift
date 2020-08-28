@@ -38,7 +38,7 @@ final class OrderListViewController: UIViewController {
             return cell
         }
 
-        let detailsViewModel = self.viewModel.detailsViewModel(withID: managedObjectID)
+        let detailsViewModel = self.viewModel.detailsViewModel(at: indexPath)
         let orderStatus = self.lookUpOrderStatus(for: detailsViewModel?.order)
         cell.configureCell(viewModel: detailsViewModel, orderStatus: orderStatus)
         cell.layoutIfNeeded()
@@ -540,22 +540,22 @@ extension OrderListViewController: UITableViewDelegate {
             return
         }
 
-//        guard let orderDetailsViewModel = viewModel.detailsViewModel(at: indexPath) else {
-//            return
-//        }
-//
-//        guard let orderDetailsVC = OrderDetailsViewController.instantiatedViewControllerFromStoryboard() else {
-//            assertionFailure("Expected OrderDetailsViewController to be instantiated")
-//            return
-//        }
-//
-//        orderDetailsVC.viewModel = orderDetailsViewModel
-//
-//        let order = orderDetailsViewModel.order
-//        ServiceLocator.analytics.track(.orderOpen, withProperties: ["id": order.orderID,
-//                                                                    "status": order.statusKey])
-//
-//        navigationController?.pushViewController(orderDetailsVC, animated: true)
+        guard let orderDetailsViewModel = viewModel.detailsViewModel(at: indexPath) else {
+            return
+        }
+
+        guard let orderDetailsVC = OrderDetailsViewController.instantiatedViewControllerFromStoryboard() else {
+            assertionFailure("Expected OrderDetailsViewController to be instantiated")
+            return
+        }
+
+        orderDetailsVC.viewModel = orderDetailsViewModel
+
+        let order = orderDetailsViewModel.order
+        ServiceLocator.analytics.track(.orderOpen, withProperties: ["id": order.orderID,
+                                                                    "status": order.statusKey])
+
+        navigationController?.pushViewController(orderDetailsVC, animated: true)
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
