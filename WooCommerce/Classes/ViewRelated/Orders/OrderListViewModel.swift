@@ -1,7 +1,5 @@
 
 import Combine
-#warning("we should not reference Core Data")
-import CoreData
 
 import Yosemite
 import class AutomatticTracks.CrashLogging
@@ -62,7 +60,7 @@ final class OrderListViewModel {
         DiffableResultsController(storage: self.storageManager.viewStorage)
     }()
 
-    var snapshot: AnyPublisher<NSDiffableDataSourceSnapshot<String, NSManagedObjectID>, Never> {
+    var snapshot: AnyPublisher<NSDiffableDataSourceSnapshot<String, DiffableStorageObjectID>, Never> {
         resultsController.snapshot
     }
 
@@ -309,7 +307,7 @@ extension OrderListViewModel {
     }
 
     #warning("replace NSMAnagedObjectID")
-    func indexOfObject(_ managedObjectID: NSManagedObjectID) -> Int? {
+    func indexOfObject(_ managedObjectID: DiffableStorageObjectID) -> Int? {
         resultsController.indexOfObject(managedObjectID)
     }
 

@@ -7,8 +7,6 @@ import Gridicons
 import WordPressUI
 
 import Yosemite
-#warning("we should not reference Core DAta")
-import CoreData
 
 // Used for protocol conformance of IndicatorInfoProvider only.
 import XLPagerTabStrip
@@ -29,7 +27,7 @@ final class OrderListViewController: UIViewController {
     ///
     private lazy var tableView = UITableView(frame: .zero, style: .grouped)
 
-    private lazy var dataSource = UITableViewDiffableDataSource<String, NSManagedObjectID>(tableView: tableView) { [weak self] (tableView, indexPath, managedObjectID) -> UITableViewCell? in
+    private lazy var dataSource = UITableViewDiffableDataSource<String, DiffableStorageObjectID>(tableView: tableView) { [weak self] (tableView, indexPath, managedObjectID) -> UITableViewCell? in
         guard let cell = tableView.dequeueReusableCell(withIdentifier: OrderTableViewCell.reuseIdentifier, for: indexPath) as? OrderTableViewCell else {
             #warning("add message :D")
             fatalError()

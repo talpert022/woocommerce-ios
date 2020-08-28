@@ -2,10 +2,12 @@ import Storage
 import CoreData
 import Combine
 
+public typealias DiffableStorageObjectID = NSManagedObjectID
+
 @available(iOS 13.0, *)
 public final class DiffableResultsController: NSObject {
 
-    public typealias Snapshot = NSDiffableDataSourceSnapshot<String, NSManagedObjectID>
+    public typealias Snapshot = NSDiffableDataSourceSnapshot<String, DiffableStorageObjectID>
 
     private let storage: StorageType
 
@@ -48,7 +50,7 @@ public final class DiffableResultsController: NSObject {
         snapshotSubject.value.numberOfItems == 0
     }
 
-    public func indexOfObject(_ managedObjectID: NSManagedObjectID) -> Int? {
+    public func indexOfObject(_ managedObjectID: DiffableStorageObjectID) -> Int? {
         snapshotSubject.value.indexOfItem(managedObjectID)
     }
 
