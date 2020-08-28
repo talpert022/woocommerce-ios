@@ -3,7 +3,7 @@ import Foundation
 
 /// Enum used to represent the age of Order / Notification entities.
 ///
-enum Age: String {
+public enum Age: String {
     case months     = "0"
     case weeks      = "2"
     case days       = "4"
@@ -11,7 +11,7 @@ enum Age: String {
     case today      = "6"
     case upcoming   = "7"
 
-    var description: String {
+    public var description: String {
         switch self {
         case .months:       return NSLocalizedString("Older than a Month", comment: "Months Section Header")
         case .weeks:        return NSLocalizedString("Older than a Week", comment: "Weeks Section Header")
@@ -26,7 +26,7 @@ enum Age: String {
 
 // MARK: - Convenience Methods Initializers
 //
-extension Age {
+public extension Age {
 
     /// Returns the Age entity that best describes a given timespan.
     ///
