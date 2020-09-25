@@ -73,7 +73,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-force-crash-logging 1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
