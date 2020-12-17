@@ -66,8 +66,10 @@ extension StorePickerCoordinator: StorePickerViewControllerDelegate {
                 self?.onDismiss?()
             }
         case .login:
-            navigationController.popToRootViewController(animated: true)
-            onDismiss?()
+            navigationController.dismiss(animated: false) { [weak self] in
+                self?.onDismiss?()
+                ServiceLocator.stores.deauthenticate()
+            }
         }
     }
 }
