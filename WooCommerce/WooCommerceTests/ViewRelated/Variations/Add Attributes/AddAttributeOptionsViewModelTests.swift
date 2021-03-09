@@ -375,9 +375,11 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
         }
 
         let initialAttribute = sampleAttribute()
-        let initialProduct = sampleProduct().copy(attributes: [initialAttribute])
+        let initialNonVarAttribute = sampleNonVariationAttribute()
+        let initialProduct = sampleProduct().copy(attributes: [initialAttribute, initialNonVarAttribute])
         let viewModel = AddAttributeOptionsViewModel(product: initialProduct, attribute: .existing(attribute: initialAttribute), stores: stores)
 
+        viewModel.setCurrentAttributeName("New Attribute Name")
         viewModel.addNewOption(name: "Option 1")
         viewModel.addNewOption(name: "Option 2")
 
@@ -394,8 +396,8 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
         }
 
         // Then
-        let expectedAttribute = sampleAttribute(options: ["Option 1", "Option 2"])
-        XCTAssertEqual(updatedProduct.attributes, [expectedAttribute])
+        let expectedAttribute = sampleAttribute(name: "New Attribute Name", options: ["Option 1", "Option 2"])
+        XCTAssertEqual(updatedProduct.attributes, [initialNonVarAttribute, expectedAttribute])
     }
 
     func test_removing_current_attribute_correctly_updates_product_attributes() throws {
@@ -412,7 +414,8 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
 
         let attribute1 = sampleAttribute(name: "Color", options: ["Green", "Blue"])
         let attribute2 = sampleAttribute(name: "Size", options: ["Large", "Small"])
-        let initialProduct = sampleProduct().copy(attributes: [attribute1, attribute2])
+        let attribute3 = sampleNonVariationAttribute()
+        let initialProduct = sampleProduct().copy(attributes: [attribute1, attribute2, attribute3])
         let viewModel = AddAttributeOptionsViewModel(product: initialProduct, attribute: .existing(attribute: attribute2), stores: stores)
 
 
@@ -429,7 +432,7 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
         }
 
         // Then
-        XCTAssertEqual(updatedProduct.attributes, [attribute1])
+        XCTAssertEqual(updatedProduct.attributes, [attribute1, attribute3])
     }
 
     func test_saving_new_attribute_does_not_override_existing_local_attribute() throws {
@@ -445,7 +448,8 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
         }
 
         let initialAttribute = sampleAttribute(attributeID: 0, name: "attr-1")
-        let initialProduct = sampleProduct().copy(attributes: [initialAttribute])
+        let initialNonVarAttribute = sampleNonVariationAttribute()
+        let initialProduct = sampleProduct().copy(attributes: [initialAttribute, initialNonVarAttribute])
         let viewModel = AddAttributeOptionsViewModel(product: initialProduct, attribute: .new(name: "attr-2"), stores: stores)
 
         viewModel.addNewOption(name: "Option 1")
@@ -465,7 +469,7 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
 
         // Then
         let expectedAttribute = sampleAttribute(attributeID: 0, name: "attr-2", options: ["Option 1", "Option 2"])
-        XCTAssertEqual(updatedProduct.attributes, [initialAttribute, expectedAttribute])
+        XCTAssertEqual(updatedProduct.attributes, [initialAttribute, initialNonVarAttribute, expectedAttribute])
     }
 
     func test_existing_local_attribute_should_preselect_options() throws {
@@ -538,6 +542,39 @@ final class AddAttributeOptionsViewModelTests: XCTestCase {
         XCTAssertFalse(selectedSection.allowsReorder)
         XCTAssertTrue(attribute.isGlobal)
     }
+
+    func test_local_attribute_should_allow_rename() {
+        // Given, When
+        let attribute = sampleAttribute(attributeID: 0, name: "Color", options: ["Green", "Blue", "Red"])
+        let viewModel = AddAttributeOptionsViewModel(product: sampleProduct(), attribute: .existing(attribute: attribute))
+
+        // Then
+        XCTAssertTrue(attribute.isLocal)
+        XCTAssertTrue(viewModel.allowsRename)
+    }
+
+    func test_global_attribute_should_not_allow_rename() {
+        // Given, When
+        let attribute = sampleAttribute(name: "Color", options: ["Green", "Blue", "Red"])
+        let viewModel = AddAttributeOptionsViewModel(product: sampleProduct(), attribute: .existing(attribute: attribute))
+
+        // Then
+        XCTAssertTrue(attribute.isGlobal)
+        XCTAssertFalse(viewModel.allowsRename)
+    }
+
+    func test_next_button_is_enabled_after_renaming_attribute() {
+        // Given
+        let attribute = sampleAttribute(name: "Color", options: ["Green", "Blue", "Red"])
+        let viewModel = AddAttributeOptionsViewModel(product: sampleProduct(), attribute: .existing(attribute: attribute))
+        XCTAssertFalse(viewModel.isNextButtonEnabled)
+
+        // When
+        viewModel.setCurrentAttributeName("New Color")
+
+        // Then
+        XCTAssertTrue(viewModel.isNextButtonEnabled)
+    }
 }
 
 // MARK: Helpers
@@ -554,6 +591,16 @@ private extension AddAttributeOptionsViewModelTests {
                          position: 0,
                          visible: true,
                          variation: true,
+                         options: options)
+    }
+
+    func sampleNonVariationAttribute(attributeID: Int64 = 9999, name: String? = nil, options: [String] = []) -> ProductAttribute {
+        ProductAttribute(siteID: 123,
+                         attributeID: attributeID,
+                         name: name ?? sampleAttributeName,
+                         position: 0,
+                         visible: true,
+                         variation: false,
                          options: options)
     }
 

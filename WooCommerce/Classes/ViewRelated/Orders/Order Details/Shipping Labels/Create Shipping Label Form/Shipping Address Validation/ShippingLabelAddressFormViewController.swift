@@ -129,8 +129,7 @@ private extension ShippingLabelAddressFormViewController {
 
     func configureConfirmButton() {
         confirmButton.setTitle(Localization.confirmButtonTitle, for: .normal)
-        // TODO: implement confirm button action
-        //confirmButton.addTarget(self, action: #selector(addTapped), for: .touchUpInside)
+        confirmButton.addTarget(self, action: #selector(confirmButtonTapped), for: .touchUpInside)
         confirmButton.applySecondaryButtonStyle()
     }
 }
@@ -143,11 +142,15 @@ private extension ShippingLabelAddressFormViewController {
         viewModel.validateAddress { [weak self] (success, error) in
             guard let self = self else { return }
             if success {
-                // TODO: If the API response returns a suggested address,
-                // we need to display the suggested response and allow the users to select the suggested address.
                 self.onCompletion(self.viewModel.address)
+                self.navigationController?.popViewController(animated: true)
             }
         }
+    }
+
+    @objc func confirmButtonTapped() {
+        onCompletion(viewModel.address)
+        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -335,8 +338,6 @@ extension ShippingLabelAddressFormViewController {
     }
 
     enum Row: CaseIterable {
-        case topBanner
-
         case name
         case company
         case phone
@@ -351,7 +352,7 @@ extension ShippingLabelAddressFormViewController {
 
         fileprivate var type: UITableViewCell.Type {
             switch self {
-            case .topBanner, .fieldError:
+            case .fieldError:
                 return BasicTableViewCell.self
             case .name, .company, .phone, .address, .address2, .city, .postcode, .state, .country:
                 return TitleAndTextFieldTableViewCell.self
