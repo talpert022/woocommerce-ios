@@ -67,6 +67,11 @@ platform :ios do
   ENV['PROJECT_ROOT_FOLDER'] = './'
   ENV['APP_STORE_STRINGS_FILE_NAME'] = 'AppStoreStrings.pot'
 
+  lane :test_lane do
+    alpha_code_signing
+    UI.success 'Test lane was successful 🎉'
+  end
+
   ########################################################################
   # Release Lanes
   ########################################################################
