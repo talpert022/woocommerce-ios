@@ -146,7 +146,7 @@ platform :ios do
       'app_store_screenshot-5' => File.join(source_metadata_folder, 'promo_screenshot_5.txt')
     }
 
-    ios_update_metadata_source(po_file_path: prj_folder + '/WooCommerce/Resources/AppStoreStrings.pot',
+    ios_update_metadata_source(po_file_path: File.join(prj_folder, 'WooCommerce', 'Resources', 'AppStoreStrings.pot'),
                                source_files: files,
                                release_version: options[:version])
   end
@@ -347,7 +347,7 @@ platform :ios do
     sh('cd .. && rm WooCommerce.app.dSYM.zip')
 
     if options[:create_release]
-      archive_zip_path = File.dirname(Dir.pwd) + '/WooCommerce.xarchive.zip'
+      archive_zip_path = File.join(File.dirname(Dir.pwd), '/WooCommerce.xarchive.zip')
       zip(path: lane_context[SharedValues::XCODEBUILD_ARCHIVE], output_path: archive_zip_path)
 
       version = ios_get_app_version
