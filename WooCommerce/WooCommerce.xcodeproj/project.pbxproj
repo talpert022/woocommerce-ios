@@ -1282,9 +1282,9 @@
 		DEC2962526C122DF005A056B /* ShippingLabelCustomsFormInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2962426C122DF005A056B /* ShippingLabelCustomsFormInputViewModel.swift */; };
 		DEC2962726C17AD8005A056B /* ShippingLabelCustomsForm+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2962626C17AD8005A056B /* ShippingLabelCustomsForm+Localization.swift */; };
 		DEC2962926C20ECB005A056B /* CollapsibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2962826C20ECB005A056B /* CollapsibleView.swift */; };
+		DED7E4CC26E8703900525B25 /* ShippingLabelPackageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7E4CA26E8703900525B25 /* ShippingLabelPackageItem.swift */; };
+		DED7E4CD26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7E4CB26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift */; };
 		DEDB886B26E8531E00981595 /* ShippingLabelPackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDB886A26E8531E00981595 /* ShippingLabelPackageInfo.swift */; };
-		DEDB886E26E86D6C00981595 /* ShippingLabelPackageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDB886D26E86D6C00981595 /* ShippingLabelPackageItem.swift */; };
-		DEDB887026E86D8300981595 /* ShippingLabelPackageItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDB886F26E86D8300981595 /* ShippingLabelPackageItemViewModel.swift */; };
 		DEE6437626D87C4100888A75 /* PrintCustomsFormsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6437526D87C4100888A75 /* PrintCustomsFormsView.swift */; };
 		DEE6437826D8DAD900888A75 /* InProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6437726D8DAD900888A75 /* InProgressView.swift */; };
 		DEFD6E61264990FB00E51E0D /* SitePluginListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFD6E60264990FB00E51E0D /* SitePluginListViewModelTests.swift */; };
@@ -2696,9 +2696,9 @@
 		DEC2962426C122DF005A056B /* ShippingLabelCustomsFormInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelCustomsFormInputViewModel.swift; sourceTree = "<group>"; };
 		DEC2962626C17AD8005A056B /* ShippingLabelCustomsForm+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShippingLabelCustomsForm+Localization.swift"; sourceTree = "<group>"; };
 		DEC2962826C20ECB005A056B /* CollapsibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleView.swift; sourceTree = "<group>"; };
+		DED7E4CA26E8703900525B25 /* ShippingLabelPackageItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItem.swift; sourceTree = "<group>"; };
+		DED7E4CB26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItemViewModel.swift; sourceTree = "<group>"; };
 		DEDB886A26E8531E00981595 /* ShippingLabelPackageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageInfo.swift; sourceTree = "<group>"; };
-		DEDB886D26E86D6C00981595 /* ShippingLabelPackageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItem.swift; sourceTree = "<group>"; };
-		DEDB886F26E86D8300981595 /* ShippingLabelPackageItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItemViewModel.swift; sourceTree = "<group>"; };
 		DEE6437526D87C4100888A75 /* PrintCustomsFormsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintCustomsFormsView.swift; sourceTree = "<group>"; };
 		DEE6437726D8DAD900888A75 /* InProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InProgressView.swift; sourceTree = "<group>"; };
 		DEFD6E60264990FB00E51E0D /* SitePluginListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SitePluginListViewModelTests.swift; sourceTree = "<group>"; };
@@ -4059,6 +4059,7 @@
 				451A9962260E31480059D135 /* ShippingLabelPackageDetailsViewModel.swift */,
 				45DB705F2614C7E80064A6CF /* ShippingLabelPackageDetailsResultsControllers.swift */,
 				451A9972260E39270059D135 /* ShippingLabelPackageNumberRow.swift */,
+				DED7E4C926E8703900525B25 /* ShippingLabelPackageItem */,
 				45CE2D302625AA7900E3CA00 /* Package Selection */,
 			);
 			path = "Package Details";
@@ -4311,7 +4312,6 @@
 			children = (
 				45CE2D312625AA9A00E3CA00 /* ShippingLabelPackageList.swift */,
 				CC254F3326C4113B005F3C82 /* ShippingLabelPackageSelection.swift */,
-				DEDB886C26E86D0100981595 /* ShippingLabelPackageItem */,
 				CC254F2E26C2A4E6005F3C82 /* Package Creation */,
 			);
 			path = "Package Selection";
@@ -6302,11 +6302,11 @@
 			path = Customs;
 			sourceTree = "<group>";
 		};
-		DEDB886C26E86D0100981595 /* ShippingLabelPackageItem */ = {
+		DED7E4C926E8703900525B25 /* ShippingLabelPackageItem */ = {
 			isa = PBXGroup;
 			children = (
-				DEDB886D26E86D6C00981595 /* ShippingLabelPackageItem.swift */,
-				DEDB886F26E86D8300981595 /* ShippingLabelPackageItemViewModel.swift */,
+				DED7E4CA26E8703900525B25 /* ShippingLabelPackageItem.swift */,
+				DED7E4CB26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift */,
 			);
 			path = ShippingLabelPackageItem;
 			sourceTree = "<group>";
@@ -7196,7 +7196,7 @@
 				D85B8333222FABD1002168F3 /* StatusListTableViewCell.swift in Sources */,
 				0259D65D2582248D003B1CD6 /* PrintShippingLabelViewController.swift in Sources */,
 				D881A31B256B5CC500FE5605 /* ULErrorViewController.swift in Sources */,
-				DEDB887026E86D8300981595 /* ShippingLabelPackageItemViewModel.swift in Sources */,
+				DED7E4CD26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift in Sources */,
 				CE22E3F72170E23C005A6BEF /* PrivacySettingsViewController.swift in Sources */,
 				021125482577CC650075AD2A /* ShippingLabelDetailsViewModel.swift in Sources */,
 				316837DA25CCA90C00E36B2F /* OrderStatusListDataSource.swift in Sources */,
@@ -7536,7 +7536,7 @@
 				D8610BCC256F284700A5DF27 /* ULErrorViewModel.swift in Sources */,
 				4590CEE4249BA46700949F05 /* AddProductCategoryViewController.swift in Sources */,
 				CE37C04422984E81008DCB39 /* PickListTableViewCell.swift in Sources */,
-				DEDB886E26E86D6C00981595 /* ShippingLabelPackageItem.swift in Sources */,
+				DED7E4CC26E8703900525B25 /* ShippingLabelPackageItem.swift in Sources */,
 				020DD48D2322A617005822B1 /* ProductsTabProductViewModel.swift in Sources */,
 				B5A56BF5219F5AB20065A902 /* NSNotificationName+Woo.swift in Sources */,
 				D449C51B26DE6B5000D75B02 /* ReportList.swift in Sources */,
