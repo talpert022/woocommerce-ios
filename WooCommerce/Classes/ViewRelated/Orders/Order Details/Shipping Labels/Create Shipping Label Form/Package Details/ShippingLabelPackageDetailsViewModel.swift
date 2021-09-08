@@ -12,6 +12,10 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     ///
     @Published private(set) var doneButtonEnabled: Bool = false
 
+    /// References of view models for child items.
+    ///
+    @Published private(set) var itemViewModels: [ShippingLabelPackageItemViewModel] = []
+
     /// List of packages that are validated.
     ///
     var validatedPackages: [ShippingLabelPackageInfo] {
@@ -23,9 +27,9 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
         }
     }
 
-    /// References of view models for child items.
-    ///
-    private(set) var itemViewModels: [ShippingLabelPackageItemViewModel] = []
+    var foundMultiplePackages: Bool {
+        selectedPackages.count > 1
+    }
 
     private let order: Order
     private let stores: StoresManager
@@ -41,7 +45,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     }
     /// List of selected package with basic info.
     ///
-    @Published private(set) var selectedPackages: [ShippingLabelPackageInfo] = []
+    @Published private var selectedPackages: [ShippingLabelPackageInfo] = []
 
     /// Products contained inside the Order and fetched from Core Data
     ///

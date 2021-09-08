@@ -19,13 +19,11 @@ struct ShippingLabelPackageDetails: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                ForEach(Array(viewModel.selectedPackages.enumerated()), id: \.element) { index, element in
-                    viewModel.itemViewModels.first(where: { $0.selectedPackageID == element.packageID }).map { itemViewModel in
-                        ShippingLabelPackageItem(packageNumber: index + 1,
-                                                 isCollapsible: viewModel.selectedPackages.count > 1,
-                                                 safeAreaInsets: geometry.safeAreaInsets,
-                                                 viewModel: itemViewModel)
-                    }
+                ForEach(Array(viewModel.itemViewModels.enumerated()), id: \.offset) { index, element in
+                    ShippingLabelPackageItem(packageNumber: index + 1,
+                                             isCollapsible: viewModel.foundMultiplePackages,
+                                             safeAreaInsets: geometry.safeAreaInsets,
+                                             viewModel: element)
                 }
                 .padding(.bottom, insets: geometry.safeAreaInsets)
             }
