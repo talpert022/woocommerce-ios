@@ -6,6 +6,8 @@ import Yosemite
 /// View model for `ShippingLabelPackageItem`.
 ///
 final class ShippingLabelPackageItemViewModel: ObservableObject {
+    typealias PackageSwitchHandler = (_ currentID: String, _ newPackage: ShippingLabelPackageInfo) -> Void
+
     private let order: Order
     private let orderItems: [OrderItem]
     private let currency: String
@@ -41,7 +43,7 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
 
     /// The id of the selected package. Defaults to last selected package, if any.
     ///
-    @Published var selectedPackageID: String
+    let selectedPackageID: String
 
     /// The title of the selected package, if any.
     ///
@@ -70,6 +72,10 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
         return customPackages.count > 0
     }
 
+    /// Callback to the package list to switch package ID.
+    ///
+    private let onPackageSwitch: PackageSwitchHandler
+
     init(order: Order,
          orderItems: [OrderItem],
          packagesResponse: ShippingLabelPackagesResponse?,
@@ -77,6 +83,7 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
          totalWeight: String,
          products: [Product],
          productVariations: [ProductVariation],
+         packageSwitchHandler: @escaping PackageSwitchHandler,
          formatter: CurrencyFormatter = CurrencyFormatter(currencySettings: ServiceLocator.currencySettings),
          weightUnit: String? = ServiceLocator.shippingSettingsService.weightUnit) {
         self.order = order
@@ -86,58 +93,32 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
         self.weightUnit = weightUnit
         self.packagesResponse = packagesResponse
         self.selectedPackageID = selectedPackageID
+        self.onPackageSwitch = packageSwitchHandler
 
         didSelectPackage(selectedPackageID)
-        confirmPackageSelection()
         configureItemRows(products: products, productVariations: productVariations)
-        configureTotalWeights(initialTotalWeight: totalWeight, products: products, productVariations: productVariations)
+        configureTotalWeight(initialTotalWeight: totalWeight, products: products, productVariations: productVariations)
     }
 
     private func configureItemRows(products: [Product], productVariations: [ProductVariation]) {
         itemsRows = generateItemsRows(products: products, productVariations: productVariations)
     }
 
-    /// Observe changes in selected custom package, products and variations to update total package weight.
-    /// - Parameter initialTotalWeight: the weight value that was input initially.
-    /// If this value is different from the calculated weight, we can assume that user has updated the weight manually.
+    /// Sets total weight to initialTotalWeight if it's different from the calculated weight.
+    /// Otherwise uses the calculated weight.
     ///
-    private func configureTotalWeights(initialTotalWeight: String, products: [Product], productVariations: [ProductVariation]) {
-        if initialTotalWeight.isNotEmpty {
-            let calculatedWeight = calculateTotalWeight(products: products, productVariations: productVariations, customPackage: selectedCustomPackage)
-            // Return early if manual input is detected
-            if initialTotalWeight != String(calculatedWeight) {
-                isPackageWeightEdited = true
-                return totalWeight = initialTotalWeight
-            }
+    private func configureTotalWeight(initialTotalWeight: String, products: [Product], productVariations: [ProductVariation]) {
+        let calculatedWeight = calculateTotalWeight(products: products, productVariations: productVariations, customPackage: selectedCustomPackage)
+
+        if initialTotalWeight.isNotEmpty, initialTotalWeight != String(calculatedWeight) {
+            isPackageWeightEdited = true
+            totalWeight = initialTotalWeight
+        } else {
+            totalWeight = String(calculatedWeight)
         }
 
-        // Create a stream of changes of calculated weight.
-        // This takes into account changes of selected custom package, products and variations.
-        // The stream should be completed immediately if manual input of package weight is detected.
-        //
-        let calculatedWeight = $selectedCustomPackage
-            .map { [weak self] customPackage -> Double in
-                self?.calculateTotalWeight(products: products, productVariations: productVariations, customPackage: customPackage) ?? 0
-            }
-            .combineLatest($isPackageWeightEdited)
-            .prefix(while: { (_, isEdited) in !isEdited })
-            .map { (weight, _) in
-                String(weight)
-            }
-
-        // Display calculated weight on UI
-        //
-        calculatedWeight
-            .assign(to: &$totalWeight)
-
-        // With every change of total weight, check with latest calculated weight.
-        // If the values are different, we can assume that the weight was manually input,
-        // and update `isPackageWeightEdited` to true to complete all Combine streams.
-        //
-        $totalWeight.withLatestFrom(calculatedWeight)
-            .map { (totalWeight, calculatedWeight) -> Bool in
-                totalWeight != calculatedWeight
-            }
+        $totalWeight
+            .map { $0 != String(calculatedWeight) }
             .assign(to: &$isPackageWeightEdited)
     }
 }
@@ -258,11 +239,23 @@ extension ShippingLabelPackageItemViewModel {
     /// Also sets the total weight for the package, including the selected package weight (if any).
     ///
     func confirmPackageSelection() {
-        if let selectedCustomPackage = selectedCustomPackage {
-            selectedPackageID = selectedCustomPackage.title
+        let newPackageID: String? = {
+            if let selectedCustomPackage = selectedCustomPackage {
+                return selectedCustomPackage.title
+            } else if let selectedPredefinedPackage = selectedPredefinedPackage {
+                return selectedPredefinedPackage.id
+            }
+            return nil
+        }()
+        guard let newPackageID = newPackageID else {
+            return
         }
-        else if let selectedPredefinedPackage = selectedPredefinedPackage {
-            selectedPackageID = selectedPredefinedPackage.id
+        let newTotalWeight = isPackageWeightEdited ? totalWeight : ""
+        let newPackage = ShippingLabelPackageInfo(packageID: newPackageID, totalWeight: newTotalWeight, productIDs: orderItems.map { $0.productOrVariationID })
+
+        // Wait a bit for the package list screen to be dismissed.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [unowned self] in
+            self.onPackageSwitch(self.selectedPackageID, newPackage)
         }
     }
 }

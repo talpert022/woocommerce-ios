@@ -55,8 +55,8 @@ struct ShippingLabelPackageList: View {
                 .navigationTitle(Localization.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarItems(trailing: Button(action: {
-                    viewModel.confirmPackageSelection()
                     presentation.wrappedValue.dismiss()
+                    viewModel.confirmPackageSelection()
                 }, label: {
                     Text(Localization.doneButton)
                 }))
@@ -101,7 +101,7 @@ struct ShippingLabelPackageList_Previews: PreviewProvider {
                                                           selectedPackageID: "Box 1",
                                                           totalWeight: "",
                                                           products: [],
-                                                          productVariations: [])
+                                                          productVariations: []) { _, _ in }
 
         ShippingLabelPackageList(viewModel: viewModel)
     }

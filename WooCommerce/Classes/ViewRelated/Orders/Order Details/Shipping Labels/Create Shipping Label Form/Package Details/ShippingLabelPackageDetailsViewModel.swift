@@ -50,10 +50,12 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
         configureResultsControllers()
         syncProducts()
         syncProductVariations()
-        configureItemViewModels(order: order, packageResponse: packagesResponse)
         configureDefaultPackage()
+        configureItemViewModels(order: order, packageResponse: packagesResponse)
     }
 
+    /// If no initial packages was input, set up default package from last selected package ID and all order items.
+    ///
     private func configureDefaultPackage() {
         guard selectedPackages.isEmpty,
               let selectedPackageID = resultsControllers?.accountSettings?.lastSelectedPackageID else {
@@ -62,10 +64,12 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
         selectedPackages = [ShippingLabelPackageInfo(packageID: selectedPackageID, totalWeight: "", productIDs: order.items.map { $0.productOrVariationID })]
     }
 
+    /// Set up item view models on change of products and product variations.
+    ///
     private func configureItemViewModels(order: Order, packageResponse: ShippingLabelPackagesResponse?) {
         $selectedPackages.combineLatest($products, $productVariations)
-            .map { packages, products, variations -> [ShippingLabelPackageItemViewModel] in
-                return packages.map { details in
+            .map { selectedPackages, products, variations -> [ShippingLabelPackageItemViewModel] in
+                return selectedPackages.map { details in
                     let orderItems = order.items.filter { details.productIDs.contains($0.productOrVariationID) }
                     return ShippingLabelPackageItemViewModel(order: order,
                                                              orderItems: orderItems,
@@ -73,13 +77,28 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
                                                              selectedPackageID: details.packageID,
                                                              totalWeight: details.totalWeight,
                                                              products: products,
-                                                             productVariations: variations)
+                                                             productVariations: variations,
+                                                             packageSwitchHandler: { [weak self] currentID, newPackage in
+                                                                self?.switchPackage(currentID: currentID, newPackage: newPackage)
+                                                             })
                 }
             }
             .sink { [weak self] viewModels in
                 self?.itemViewModels = viewModels
             }
             .store(in: &cancellables)
+    }
+
+    /// Update selected packages when user switch any package.
+    ///
+    private func switchPackage(currentID: String, newPackage: ShippingLabelPackageInfo) {
+        selectedPackages = selectedPackages.map { package in
+            if package.packageID == currentID {
+                return newPackage
+            } else {
+                return package
+            }
+        }
     }
 
     private func configureResultsControllers() {
