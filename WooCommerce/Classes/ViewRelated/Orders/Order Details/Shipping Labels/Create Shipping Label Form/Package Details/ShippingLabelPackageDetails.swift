@@ -3,7 +3,6 @@ import Yosemite
 
 struct ShippingLabelPackageDetails: View {
     @ObservedObject private var viewModel: ShippingLabelPackageDetailsViewModel
-    @State private var showingPackageSelection = false
     @Environment(\.presentationMode) var presentation
 
     /// Completion callback
@@ -20,8 +19,15 @@ struct ShippingLabelPackageDetails: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                EmptyView()
-                    .padding(.bottom, insets: geometry.safeAreaInsets)
+                ForEach(Array(viewModel.selectedPackages.enumerated()), id: \.element) { index, element in
+                    viewModel.itemViewModels.first(where: { $0.selectedPackageID == element.packageID }).map { itemViewModel in
+                        ShippingLabelPackageItem(packageNumber: index + 1,
+                                                 isCollapsible: viewModel.selectedPackages.count > 1,
+                                                 safeAreaInsets: geometry.safeAreaInsets,
+                                                 viewModel: itemViewModel)
+                    }
+                }
+                .padding(.bottom, insets: geometry.safeAreaInsets)
             }
             .background(Color(.listBackground))
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
@@ -30,7 +36,8 @@ struct ShippingLabelPackageDetails: View {
         .navigationBarItems(trailing: Button(action: {
             ServiceLocator.analytics.track(.shippingLabelPurchaseFlow,
                                            withProperties: ["state": "packages_selected"])
-            onCompletion(viewModel.selectedPackagesDetails)
+            // TODO: update selection
+//            onCompletion(viewModel.selectedPackagesDetails)
             presentation.wrappedValue.dismiss()
         }, label: {
             Text(Localization.doneButton)

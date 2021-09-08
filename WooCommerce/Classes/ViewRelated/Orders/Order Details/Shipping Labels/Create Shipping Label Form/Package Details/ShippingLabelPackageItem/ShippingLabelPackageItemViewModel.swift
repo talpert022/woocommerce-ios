@@ -74,7 +74,7 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
          orderItems: [OrderItem],
          packagesResponse: ShippingLabelPackagesResponse?,
          selectedPackageID: String,
-         totalWeight: String?,
+         totalWeight: String,
          products: [Product],
          productVariations: [ProductVariation],
          formatter: CurrencyFormatter = CurrencyFormatter(currencySettings: ServiceLocator.currencySettings),
@@ -101,8 +101,8 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
     /// - Parameter initialTotalWeight: the weight value that was input initially.
     /// If this value is different from the calculated weight, we can assume that user has updated the weight manually.
     ///
-    private func configureTotalWeights(initialTotalWeight: String?, products: [Product], productVariations: [ProductVariation]) {
-        if let initialTotalWeight = initialTotalWeight {
+    private func configureTotalWeights(initialTotalWeight: String, products: [Product], productVariations: [ProductVariation]) {
+        if initialTotalWeight.isNotEmpty {
             let calculatedWeight = calculateTotalWeight(products: products, productVariations: productVariations, customPackage: selectedCustomPackage)
             // Return early if manual input is detected
             if initialTotalWeight != String(calculatedWeight) {

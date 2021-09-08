@@ -99,7 +99,7 @@ struct ShippingLabelPackageList_Previews: PreviewProvider {
                                                           orderItems: order.items,
                                                           packagesResponse: ShippingLabelPackageDetailsViewModel.samplePackageDetails(),
                                                           selectedPackageID: "Box 1",
-                                                          totalWeight: nil,
+                                                          totalWeight: "",
                                                           products: [],
                                                           productVariations: [])
 

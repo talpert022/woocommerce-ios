@@ -21,14 +21,14 @@ struct ShippingLabelPackageSelection_Previews: PreviewProvider {
                                                                       orderItems: order.items,
                                                                       packagesResponse: ShippingLabelPackageDetailsViewModel.samplePackageDetails(),
                                                                       selectedPackageID: "Box 1",
-                                                                      totalWeight: nil,
+                                                                      totalWeight: "",
                                                                       products: [],
                                                                       productVariations: [])
         let viewModelWithoutPackages = ShippingLabelPackageItemViewModel(order: order,
                                                                          orderItems: order.items,
                                                                          packagesResponse: nil,
                                                                          selectedPackageID: "Box 1",
-                                                                         totalWeight: nil,
+                                                                         totalWeight: "",
                                                                          products: [],
                                                                          productVariations: [])
 

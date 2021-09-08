@@ -8,12 +8,22 @@ import protocol Storage.StorageManagerType
 ///
 final class ShippingLabelPackageDetailsViewModel: ObservableObject {
 
+    /// Whether Done button on Package Details screen should be enabled.
+    ///
     @Published private(set) var doneButtonEnabled: Bool = false
+
+    /// References of view models for child items.
+    ///
+    private(set) var itemViewModels: [ShippingLabelPackageItemViewModel] = []
 
     private let order: Order
     private let stores: StoresManager
     private let storageManager: StorageManagerType
     private var resultsControllers: ShippingLabelPackageDetailsResultsControllers?
+
+    /// List of selected package with basic info.
+    ///
+    @Published private(set) var selectedPackages: [ShippingLabelPackageInfo] = []
 
     /// Products contained inside the Order and fetched from Core Data
     ///
@@ -23,12 +33,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     ///
     @Published private var productVariations: [ProductVariation] = []
 
-    /// List of selected package with basic info.
-    /// TODO-4599: update this to properly support multi-package.
-    ///
-    var selectedPackagesDetails: [ShippingLabelPackageInfo] {
-        return []
-    }
+    private var cancellables: Set<AnyCancellable> = []
 
     init(order: Order,
          packagesResponse: ShippingLabelPackagesResponse?,
@@ -40,10 +45,41 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
         self.order = order
         self.stores = stores
         self.storageManager = storageManager
+        self.selectedPackages = selectedPackages
 
         configureResultsControllers()
         syncProducts()
         syncProductVariations()
+        configureItemViewModels(order: order, packageResponse: packagesResponse)
+        configureDefaultPackage()
+    }
+
+    private func configureDefaultPackage() {
+        guard selectedPackages.isEmpty,
+              let selectedPackageID = resultsControllers?.accountSettings?.lastSelectedPackageID else {
+            return
+        }
+        selectedPackages = [ShippingLabelPackageInfo(packageID: selectedPackageID, totalWeight: "", productIDs: order.items.map { $0.productOrVariationID })]
+    }
+
+    private func configureItemViewModels(order: Order, packageResponse: ShippingLabelPackagesResponse?) {
+        $selectedPackages.combineLatest($products, $productVariations)
+            .map { packages, products, variations -> [ShippingLabelPackageItemViewModel] in
+                return packages.map { details in
+                    let orderItems = order.items.filter { details.productIDs.contains($0.productOrVariationID) }
+                    return ShippingLabelPackageItemViewModel(order: order,
+                                                             orderItems: orderItems,
+                                                             packagesResponse: packageResponse,
+                                                             selectedPackageID: details.packageID,
+                                                             totalWeight: details.totalWeight,
+                                                             products: products,
+                                                             productVariations: variations)
+                }
+            }
+            .sink { [weak self] viewModels in
+                self?.itemViewModels = viewModels
+            }
+            .store(in: &cancellables)
     }
 
     private func configureResultsControllers() {

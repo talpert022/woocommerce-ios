@@ -49,8 +49,7 @@ struct ShippingLabelPackageItem: View {
                 }
                 .padding(.horizontal, insets: safeAreaInsets)
                 .sheet(isPresented: $isShowingPackageSelection, content: {
-                    // TODO: fix this
-//                    ShippingLabelPackageSelection(viewModel: viewModel)
+                    ShippingLabelPackageSelection(viewModel: viewModel)
                 })
 
                 Divider()
@@ -97,7 +96,7 @@ struct ShippingLabelPackageItem_Previews: PreviewProvider {
                                                           orderItems: order.items,
                                                           packagesResponse: packageResponse,
                                                           selectedPackageID: "Box 1",
-                                                          totalWeight: nil,
+                                                          totalWeight: "",
                                                           products: [],
                                                           productVariations: [])
         ShippingLabelPackageItem(packageNumber: 1, isCollapsible: true, safeAreaInsets: .zero, viewModel: viewModel)

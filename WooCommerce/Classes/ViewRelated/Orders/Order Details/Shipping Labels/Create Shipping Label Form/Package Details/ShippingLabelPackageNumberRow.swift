@@ -25,7 +25,6 @@ struct ShippingLabelPackageNumberRow: View {
             Spacer()
         }
         .frame(height: Constants.height)
-        .padding([.leading, .trailing], Constants.padding)
     }
 }
 
@@ -40,7 +39,6 @@ private extension ShippingLabelPackageNumberRow {
 
     enum Constants {
         static let height: CGFloat = 44
-        static let padding: CGFloat = 16
     }
 }
 
