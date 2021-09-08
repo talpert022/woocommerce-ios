@@ -87,6 +87,8 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
         self.packagesResponse = packagesResponse
         self.selectedPackageID = selectedPackageID
 
+        didSelectPackage(selectedPackageID)
+        confirmPackageSelection()
         configureItemRows(products: products, productVariations: productVariations)
         configureTotalWeights(initialTotalWeight: totalWeight, products: products, productVariations: productVariations)
     }
@@ -212,6 +214,56 @@ private extension ShippingLabelPackageItemViewModel {
             tempTotalWeight += selectedPackage.boxWeight
         }
         return tempTotalWeight
+    }
+}
+
+// MARK: - Package Selection
+extension ShippingLabelPackageItemViewModel {
+    func didSelectPackage(_ id: String) {
+        selectCustomPackage(id)
+        selectPredefinedPackage(id)
+    }
+
+    private func selectCustomPackage(_ id: String) {
+        guard let packagesResponse = packagesResponse else {
+            return
+        }
+
+        for customPackage in packagesResponse.customPackages {
+            if customPackage.title == id {
+                selectedCustomPackage = customPackage
+                selectedPredefinedPackage = nil
+                return
+            }
+        }
+    }
+
+    private func selectPredefinedPackage(_ id: String) {
+        guard let packagesResponse = packagesResponse else {
+            return
+        }
+
+        for option in packagesResponse.predefinedOptions {
+            for predefinedPackage in option.predefinedPackages {
+                if predefinedPackage.id == id {
+                    selectedCustomPackage = nil
+                    selectedPredefinedPackage = predefinedPackage
+                    return
+                }
+            }
+        }
+    }
+
+    /// Writes into the binding variable the final package selection value when confirmed.
+    /// Also sets the total weight for the package, including the selected package weight (if any).
+    ///
+    func confirmPackageSelection() {
+        if let selectedCustomPackage = selectedCustomPackage {
+            selectedPackageID = selectedCustomPackage.title
+        }
+        else if let selectedPredefinedPackage = selectedPredefinedPackage {
+            selectedPackageID = selectedPredefinedPackage.id
+        }
     }
 }
 

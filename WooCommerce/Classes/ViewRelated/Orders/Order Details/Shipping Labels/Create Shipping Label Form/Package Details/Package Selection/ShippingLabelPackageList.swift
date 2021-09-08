@@ -2,7 +2,7 @@ import SwiftUI
 import Yosemite
 
 struct ShippingLabelPackageList: View {
-    @ObservedObject var viewModel: ShippingLabelPackageDetailsViewModel
+    @ObservedObject var viewModel: ShippingLabelPackageItemViewModel
     @Environment(\.presentationMode) var presentation
     @State private var isShowingNewPackageCreation = false
 
@@ -94,9 +94,14 @@ private extension ShippingLabelPackageList {
 
 struct ShippingLabelPackageList_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = ShippingLabelPackageDetailsViewModel(order: ShippingLabelPackageDetailsViewModel.sampleOrder(),
-                                                             packagesResponse: ShippingLabelPackageDetailsViewModel.samplePackageDetails(),
-                                                             selectedPackages: [])
+        let order = ShippingLabelPackageDetailsViewModel.sampleOrder()
+        let viewModel = ShippingLabelPackageItemViewModel(order: order,
+                                                          orderItems: order.items,
+                                                          packagesResponse: ShippingLabelPackageDetailsViewModel.samplePackageDetails(),
+                                                          selectedPackageID: "Box 1",
+                                                          totalWeight: nil,
+                                                          products: [],
+                                                          productVariations: [])
 
         ShippingLabelPackageList(viewModel: viewModel)
     }
