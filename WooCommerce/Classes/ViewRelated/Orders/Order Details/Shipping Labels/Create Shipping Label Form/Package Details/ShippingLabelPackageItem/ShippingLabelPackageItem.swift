@@ -4,11 +4,11 @@ struct ShippingLabelPackageItem: View {
     @ObservedObject private var viewModel: ShippingLabelPackageItemViewModel
     @State private var isCollapsed: Bool = false
     @State private var isShowingNewPackageCreation = false
-    
+
     private let isCollapsible: Bool
     private let packageNumber: Int
     private let safeAreaInsets: EdgeInsets
-    
+
     init(packageNumber: Int,
          isCollapsible: Bool,
          safeAreaInsets: EdgeInsets,
@@ -19,9 +19,13 @@ struct ShippingLabelPackageItem: View {
         self.viewModel = viewModel
         self.isCollapsed = packageNumber > 1
     }
-    
+
     var body: some View {
-        Text("Hello, World!")
+        CollapsibleView(isCollapsible: isCollapsible, isCollapsed: $isCollapsed, safeAreaInsets: safeAreaInsets) {
+            ShippingLabelPackageNumberRow(packageNumber: packageNumber, numberOfItems: viewModel.itemsRows.count)
+        } content: {
+            EmptyView()
+        }
     }
 }
 
@@ -44,7 +48,15 @@ private extension ShippingLabelPackageItem {
 
 struct ShippingLabelPackageItem_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = ShippingLabelPackageItemViewModel()
+        let order = ShippingLabelPackageDetailsViewModel.sampleOrder()
+        let packageResponse = ShippingLabelPackageDetailsViewModel.samplePackageDetails()
+        let viewModel = ShippingLabelPackageItemViewModel(order: order,
+                                                          orderItems: order.items,
+                                                          packagesResponse: packageResponse,
+                                                          selectedPackageID: "Box 1",
+                                                          totalWeight: nil,
+                                                          products: [],
+                                                          productVariations: [])
         ShippingLabelPackageItem(packageNumber: 1, isCollapsible: true, safeAreaInsets: .zero, viewModel: viewModel)
     }
 }
