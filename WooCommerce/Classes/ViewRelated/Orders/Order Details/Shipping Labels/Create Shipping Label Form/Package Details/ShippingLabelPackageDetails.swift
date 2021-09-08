@@ -20,60 +20,8 @@ struct ShippingLabelPackageDetails: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                LazyVStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        ShippingLabelPackageNumberRow(packageNumber: 1, numberOfItems: viewModel.itemsRows.count)
-                            .padding(.horizontal, insets: geometry.safeAreaInsets)
-
-                        Divider()
-                    }
-                    .background(Color(.systemBackground))
-
-                    ListHeaderView(text: Localization.itemsToFulfillHeader, alignment: .left)
-                        .padding(.horizontal, insets: geometry.safeAreaInsets)
-
-                    Divider()
-
-                    ForEach(viewModel.itemsRows) { productItemRow in
-                        productItemRow
-                            .padding(.horizontal, insets: geometry.safeAreaInsets)
-                            .background(Color(.systemBackground))
-                        Divider()
-                            .padding(.horizontal, insets: geometry.safeAreaInsets)
-                            .padding(.leading, Constants.dividerPadding)
-                    }
-
-                    ListHeaderView(text: Localization.packageDetailsHeader, alignment: .left)
-                        .padding(.horizontal, insets: geometry.safeAreaInsets)
-
-                    VStack(spacing: 0) {
-                        Divider()
-
-                        TitleAndValueRow(title: Localization.packageSelected, value: viewModel.selectedPackageName, selectable: true) {
-                            showingPackageSelection.toggle()
-                        }
-                        .padding(.horizontal, insets: geometry.safeAreaInsets)
-                        .sheet(isPresented: $showingPackageSelection, content: {
-//                            ShippingLabelPackageSelection(viewModel: viewModel)
-                        })
-
-                        Divider()
-
-                        TitleAndTextFieldRow(title: Localization.totalPackageWeight,
-                                             placeholder: "0",
-                                             text: $viewModel.totalWeight,
-                                             symbol: viewModel.weightUnit,
-                                             keyboardType: .decimalPad)
-                            .padding(.horizontal, insets: geometry.safeAreaInsets)
-
-                        Divider()
-                    }
-                    .background(Color(.systemBackground))
-
-                    ListHeaderView(text: Localization.footer, alignment: .left)
-                        .padding(.horizontal, insets: geometry.safeAreaInsets)
-                }
-                .padding(.bottom, insets: geometry.safeAreaInsets)
+                EmptyView()
+                    .padding(.bottom, insets: geometry.safeAreaInsets)
             }
             .background(Color(.listBackground))
             .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
@@ -87,7 +35,7 @@ struct ShippingLabelPackageDetails: View {
         }, label: {
             Text(Localization.doneButton)
         })
-        .disabled(!viewModel.isPackageDetailsDoneButtonEnabled()))
+        .disabled(!viewModel.doneButtonEnabled))
     }
 }
 
