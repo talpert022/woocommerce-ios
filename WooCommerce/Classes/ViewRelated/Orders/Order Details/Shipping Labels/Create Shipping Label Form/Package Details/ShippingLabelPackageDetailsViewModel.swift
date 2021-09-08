@@ -21,6 +21,13 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     private let storageManager: StorageManagerType
     private var resultsControllers: ShippingLabelPackageDetailsResultsControllers?
 
+    /// Validation states of all items.
+    ///
+    private var packagesValidation: [String: Bool] = [:] {
+        didSet {
+            configureDoneButton()
+        }
+    }
     /// List of selected package with basic info.
     ///
     @Published private(set) var selectedPackages: [ShippingLabelPackageInfo] = []
@@ -85,6 +92,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
             }
             .sink { [weak self] viewModels in
                 self?.itemViewModels = viewModels
+                self?.observeItemViewModels()
             }
             .store(in: &cancellables)
     }
@@ -99,6 +107,24 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
                 return package
             }
         }
+    }
+
+    /// Observe validation state of each package and save it by package ID.
+    ///
+    private func observeItemViewModels() {
+        itemViewModels.forEach { item in
+            item.$isValidTotalWeight
+                .sink { [weak self] isValid in
+                    self?.packagesValidation[item.selectedPackageID] = isValid
+                }
+                .store(in: &cancellables)
+        }
+    }
+
+    /// Disable Done button if any of the package validation fails.
+    ///
+    private func configureDoneButton() {
+        doneButtonEnabled = packagesValidation.first(where: { $0.value == false }) == nil
     }
 
     private func configureResultsControllers() {

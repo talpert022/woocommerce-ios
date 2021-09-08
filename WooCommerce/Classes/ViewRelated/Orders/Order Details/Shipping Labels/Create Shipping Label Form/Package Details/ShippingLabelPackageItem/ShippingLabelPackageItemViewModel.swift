@@ -41,6 +41,10 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
     ///
     @Published private(set) var itemsRows: [ItemToFulfillRow] = []
 
+    /// Whether totalWeight is valid
+    ///
+    @Published private(set) var isValidTotalWeight: Bool = false
+
     /// The id of the selected package. Defaults to last selected package, if any.
     ///
     let selectedPackageID: String
@@ -61,6 +65,15 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
     @Published private(set) var selectedCustomPackage: ShippingLabelCustomPackage?
     @Published private(set) var selectedPredefinedPackage: ShippingLabelPredefinedPackage?
     @Published var totalWeight: String = ""
+
+    /// The validated total weight to be used in the purchase form.
+    ///
+    var validatedTotalWeight: String? {
+        if validateTotalWeight(totalWeight) {
+            return totalWeight
+        }
+        return nil
+    }
 
     /// Whether the user has edited the total package weight. If true, we won't make any automatic changes to the total weight.
     ///
@@ -104,12 +117,13 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
         itemsRows = generateItemsRows(products: products, productVariations: productVariations)
     }
 
-    /// Sets total weight to initialTotalWeight if it's different from the calculated weight.
-    /// Otherwise uses the calculated weight.
+    /// Set value for total weight and observe its changes.
     ///
     private func configureTotalWeight(initialTotalWeight: String, products: [Product], productVariations: [ProductVariation]) {
         let calculatedWeight = calculateTotalWeight(products: products, productVariations: productVariations, customPackage: selectedCustomPackage)
 
+        // Set total weight to initialTotalWeight if it's different from the calculated weight.
+        // Otherwise use the calculated weight.
         if initialTotalWeight.isNotEmpty, initialTotalWeight != String(calculatedWeight) {
             isPackageWeightEdited = true
             totalWeight = initialTotalWeight
@@ -120,6 +134,10 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
         $totalWeight
             .map { $0 != String(calculatedWeight) }
             .assign(to: &$isPackageWeightEdited)
+
+        $totalWeight
+            .map { [weak self] in self?.validateTotalWeight($0) ?? false }
+            .assign(to: &$isValidTotalWeight)
     }
 }
 
@@ -195,6 +213,10 @@ private extension ShippingLabelPackageItemViewModel {
             tempTotalWeight += selectedPackage.boxWeight
         }
         return tempTotalWeight
+    }
+
+    private func validateTotalWeight(_ totalWeight: String) -> Bool {
+        totalWeight.isNotEmpty && Double(totalWeight) != 0 && Double(totalWeight) != nil
     }
 }
 
