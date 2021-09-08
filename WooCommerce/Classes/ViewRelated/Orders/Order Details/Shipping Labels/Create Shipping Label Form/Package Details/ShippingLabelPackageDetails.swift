@@ -36,8 +36,7 @@ struct ShippingLabelPackageDetails: View {
         .navigationBarItems(trailing: Button(action: {
             ServiceLocator.analytics.track(.shippingLabelPurchaseFlow,
                                            withProperties: ["state": "packages_selected"])
-            // TODO: update selection
-//            onCompletion(viewModel.selectedPackagesDetails)
+            onCompletion(viewModel.validatedPackages)
             presentation.wrappedValue.dismiss()
         }, label: {
             Text(Localization.doneButton)

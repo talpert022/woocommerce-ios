@@ -12,6 +12,17 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     ///
     @Published private(set) var doneButtonEnabled: Bool = false
 
+    /// List of packages that are validated.
+    ///
+    var validatedPackages: [ShippingLabelPackageInfo] {
+        selectedPackages.compactMap { item in
+            if packagesValidation[item.packageID] == true {
+                return item
+            }
+            return nil
+        }
+    }
+
     /// References of view models for child items.
     ///
     private(set) var itemViewModels: [ShippingLabelPackageItemViewModel] = []
