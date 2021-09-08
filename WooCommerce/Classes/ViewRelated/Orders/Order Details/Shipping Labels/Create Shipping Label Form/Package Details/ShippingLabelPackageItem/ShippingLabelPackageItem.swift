@@ -3,7 +3,7 @@ import SwiftUI
 struct ShippingLabelPackageItem: View {
     @ObservedObject private var viewModel: ShippingLabelPackageItemViewModel
     @State private var isCollapsed: Bool = false
-    @State private var isShowingNewPackageCreation = false
+    @State private var isShowingPackageSelection = false
 
     private let isCollapsible: Bool
     private let packageNumber: Int
@@ -24,7 +24,50 @@ struct ShippingLabelPackageItem: View {
         CollapsibleView(isCollapsible: isCollapsible, isCollapsed: $isCollapsed, safeAreaInsets: safeAreaInsets) {
             ShippingLabelPackageNumberRow(packageNumber: packageNumber, numberOfItems: viewModel.itemsRows.count)
         } content: {
-            EmptyView()
+            ListHeaderView(text: Localization.itemsToFulfillHeader, alignment: .left)
+                .padding(.horizontal, insets: safeAreaInsets)
+
+            Divider()
+
+            ForEach(viewModel.itemsRows) { productItemRow in
+                productItemRow
+                    .padding(.horizontal, insets: safeAreaInsets)
+                    .background(Color(.systemBackground))
+                Divider()
+                    .padding(.horizontal, insets: safeAreaInsets)
+                    .padding(.leading, Constants.dividerPadding)
+            }
+
+            ListHeaderView(text: Localization.packageDetailsHeader, alignment: .left)
+                .padding(.horizontal, insets: safeAreaInsets)
+
+            VStack(spacing: 0) {
+                Divider()
+
+                TitleAndValueRow(title: Localization.packageSelected, value: viewModel.selectedPackageName, selectable: true) {
+                    isShowingPackageSelection.toggle()
+                }
+                .padding(.horizontal, insets: safeAreaInsets)
+                .sheet(isPresented: $isShowingPackageSelection, content: {
+                    // TODO: fix this
+//                    ShippingLabelPackageSelection(viewModel: viewModel)
+                })
+
+                Divider()
+
+                TitleAndTextFieldRow(title: Localization.totalPackageWeight,
+                                     placeholder: "0",
+                                     text: $viewModel.totalWeight,
+                                     symbol: viewModel.weightUnit,
+                                     keyboardType: .decimalPad)
+                    .padding(.horizontal, insets: safeAreaInsets)
+
+                Divider()
+            }
+            .background(Color(.systemBackground))
+
+            ListHeaderView(text: Localization.footer, alignment: .left)
+                .padding(.horizontal, insets: safeAreaInsets)
         }
     }
 }
