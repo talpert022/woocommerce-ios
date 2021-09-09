@@ -6,7 +6,7 @@ import Yosemite
 /// View model for `ShippingLabelPackageItem`.
 ///
 final class ShippingLabelPackageItemViewModel: ObservableObject {
-    typealias PackageSwitchHandler = (_ currentID: String, _ newPackage: ShippingLabelPackageInfo) -> Void
+    typealias PackageSwitchHandler = (_ currentID: String, _ newPackage: ShippingLabelPackageAttributes) -> Void
 
     private let order: Order
     private let orderItems: [OrderItem]
@@ -273,7 +273,9 @@ extension ShippingLabelPackageItemViewModel {
             return
         }
         let newTotalWeight = isPackageWeightEdited ? totalWeight : ""
-        let newPackage = ShippingLabelPackageInfo(packageID: newPackageID, totalWeight: newTotalWeight, productIDs: orderItems.map { $0.productOrVariationID })
+        let newPackage = ShippingLabelPackageAttributes(packageID: newPackageID,
+                                                        totalWeight: newTotalWeight,
+                                                        productIDs: orderItems.map { $0.productOrVariationID })
 
         onPackageSwitch(selectedPackageID, newPackage)
     }

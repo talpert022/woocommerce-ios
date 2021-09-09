@@ -30,8 +30,8 @@ class ShippingLabelPackageDetailsViewModelTests: XCTestCase {
     func test_foundMultiplePackages_returns_correctly() {
         // Given
         let order = MockOrders().empty().copy(siteID: sampleSiteID)
-        let package1 = ShippingLabelPackageInfo(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
-        let package2 = ShippingLabelPackageInfo(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
+        let package1 = ShippingLabelPackageAttributes(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
+        let package2 = ShippingLabelPackageAttributes(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
 
         // When & Then
         let viewModel1 = ShippingLabelPackageDetailsViewModel(order: order, packagesResponse: nil, selectedPackages: [])
@@ -77,8 +77,8 @@ class ShippingLabelPackageDetailsViewModelTests: XCTestCase {
                                             productID: 49,
                                             productVariationID: 49,
                                             attributes: [ProductVariationAttribute(id: 1, name: "Color", option: "Blue")]))
-        let package1 = ShippingLabelPackageInfo(packageID: "Box 1", totalWeight: "12", productIDs: [1, 33, 23])
-        let package2 = ShippingLabelPackageInfo(packageID: "Box 2", totalWeight: "5.5", productIDs: [49])
+        let package1 = ShippingLabelPackageAttributes(packageID: "Box 1", totalWeight: "12", productIDs: [1, 33, 23])
+        let package2 = ShippingLabelPackageAttributes(packageID: "Box 2", totalWeight: "5.5", productIDs: [49])
 
         // When
         let viewModel = ShippingLabelPackageDetailsViewModel(order: order,
@@ -99,8 +99,8 @@ class ShippingLabelPackageDetailsViewModelTests: XCTestCase {
     func test_doneButtonEnabled_returns_true_when_all_packages_are_valid() {
         // Given
         let order = MockOrders().empty().copy(siteID: sampleSiteID)
-        let package1 = ShippingLabelPackageInfo(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
-        let package2 = ShippingLabelPackageInfo(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
+        let package1 = ShippingLabelPackageAttributes(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
+        let package2 = ShippingLabelPackageAttributes(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
 
         // When
         let viewModel = ShippingLabelPackageDetailsViewModel(order: order, packagesResponse: nil, selectedPackages: [package1, package2])
@@ -112,8 +112,8 @@ class ShippingLabelPackageDetailsViewModelTests: XCTestCase {
     func test_doneButtonEnabled_returns_false_when_not_all_packages_are_valid() {
         // Given
         let order = MockOrders().empty().copy(siteID: sampleSiteID)
-        let package1 = ShippingLabelPackageInfo(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
-        let package2 = ShippingLabelPackageInfo(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
+        let package1 = ShippingLabelPackageAttributes(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
+        let package2 = ShippingLabelPackageAttributes(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
 
         // When
         let viewModel = ShippingLabelPackageDetailsViewModel(order: order, packagesResponse: nil, selectedPackages: [package1, package2])
@@ -126,8 +126,8 @@ class ShippingLabelPackageDetailsViewModelTests: XCTestCase {
     func test_validatedPackages_returns_correctly() {
         // Given
         let order = MockOrders().empty().copy(siteID: sampleSiteID)
-        let package1 = ShippingLabelPackageInfo(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
-        let package2 = ShippingLabelPackageInfo(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
+        let package1 = ShippingLabelPackageAttributes(packageID: "Box 1", totalWeight: "12", productIDs: [1, 2, 3])
+        let package2 = ShippingLabelPackageAttributes(packageID: "Box 2", totalWeight: "5.5", productIDs: [1, 2, 3])
 
         // When
         let viewModel = ShippingLabelPackageDetailsViewModel(order: order, packagesResponse: nil, selectedPackages: [package1, package2])

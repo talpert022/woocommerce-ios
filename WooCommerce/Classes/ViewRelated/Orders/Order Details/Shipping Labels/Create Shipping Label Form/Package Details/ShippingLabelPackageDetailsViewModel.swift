@@ -18,7 +18,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
 
     /// List of packages that are validated.
     ///
-    var validatedPackages: [ShippingLabelPackageInfo] {
+    var validatedPackages: [ShippingLabelPackageAttributes] {
         selectedPackages.compactMap { item in
             if packagesValidation[item.packageID] == true {
                 return item
@@ -45,7 +45,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
     }
     /// List of selected package with basic info.
     ///
-    @Published private var selectedPackages: [ShippingLabelPackageInfo] = []
+    @Published private var selectedPackages: [ShippingLabelPackageAttributes] = []
 
     /// Products contained inside the Order and fetched from Core Data
     ///
@@ -83,7 +83,9 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
               let selectedPackageID = resultsControllers?.accountSettings?.lastSelectedPackageID else {
             return
         }
-        selectedPackages = [ShippingLabelPackageInfo(packageID: selectedPackageID, totalWeight: "", productIDs: order.items.map { $0.productOrVariationID })]
+        selectedPackages = [ShippingLabelPackageAttributes(packageID: selectedPackageID,
+                                                           totalWeight: "",
+                                                           productIDs: order.items.map { $0.productOrVariationID })]
     }
 
     /// Set up item view models on change of products and product variations.
@@ -114,7 +116,7 @@ final class ShippingLabelPackageDetailsViewModel: ObservableObject {
 
     /// Update selected packages when user switch any package.
     ///
-    private func switchPackage(currentID: String, newPackage: ShippingLabelPackageInfo) {
+    private func switchPackage(currentID: String, newPackage: ShippingLabelPackageAttributes) {
         selectedPackages = selectedPackages.map { package in
             if package.packageID == currentID {
                 return newPackage

@@ -123,7 +123,7 @@ final class ShippingLabelPackageItemViewModelTests: XCTestCase {
         let currencyFormatter = CurrencyFormatter(currencySettings: CurrencySettings())
 
         var idToTest: String?
-        var packageToTest: ShippingLabelPackageInfo?
+        var packageToTest: ShippingLabelPackageAttributes?
         let packageSwitchHandler: ShippingLabelPackageItemViewModel.PackageSwitchHandler = { id, package in
             idToTest = id
             packageToTest = package
@@ -148,9 +148,9 @@ final class ShippingLabelPackageItemViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(idToTest, "Test Box")
-        XCTAssertEqual(packageToTest, ShippingLabelPackageInfo(packageID: customPackage.title,
-                                                               totalWeight: "",
-                                                               productIDs: order.items.map { $0.productOrVariationID }))
+        XCTAssertEqual(packageToTest, ShippingLabelPackageAttributes(packageID: customPackage.title,
+                                                                     totalWeight: "",
+                                                                     productIDs: order.items.map { $0.productOrVariationID }))
     }
 
     func test_showCustomPackagesHeader_returns_the_expected_value() {
