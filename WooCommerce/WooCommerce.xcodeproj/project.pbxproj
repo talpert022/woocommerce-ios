@@ -1284,6 +1284,7 @@
 		DEC2962926C20ECB005A056B /* CollapsibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2962826C20ECB005A056B /* CollapsibleView.swift */; };
 		DED7E4CC26E8703900525B25 /* ShippingLabelPackageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7E4CA26E8703900525B25 /* ShippingLabelPackageItem.swift */; };
 		DED7E4CD26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7E4CB26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift */; };
+		DED7E4CF26E9ACDC00525B25 /* ShippingLabelPackageDetailsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED7E4CE26E9ACDC00525B25 /* ShippingLabelPackageDetailsViewModelTests.swift */; };
 		DEDB886B26E8531E00981595 /* ShippingLabelPackageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDB886A26E8531E00981595 /* ShippingLabelPackageInfo.swift */; };
 		DEE6437626D87C4100888A75 /* PrintCustomsFormsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6437526D87C4100888A75 /* PrintCustomsFormsView.swift */; };
 		DEE6437826D8DAD900888A75 /* InProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6437726D8DAD900888A75 /* InProgressView.swift */; };
@@ -2698,6 +2699,7 @@
 		DEC2962826C20ECB005A056B /* CollapsibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollapsibleView.swift; sourceTree = "<group>"; };
 		DED7E4CA26E8703900525B25 /* ShippingLabelPackageItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItem.swift; sourceTree = "<group>"; };
 		DED7E4CB26E8703900525B25 /* ShippingLabelPackageItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageItemViewModel.swift; sourceTree = "<group>"; };
+		DED7E4CE26E9ACDC00525B25 /* ShippingLabelPackageDetailsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageDetailsViewModelTests.swift; sourceTree = "<group>"; };
 		DEDB886A26E8531E00981595 /* ShippingLabelPackageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShippingLabelPackageInfo.swift; sourceTree = "<group>"; };
 		DEE6437526D87C4100888A75 /* PrintCustomsFormsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintCustomsFormsView.swift; sourceTree = "<group>"; };
 		DEE6437726D8DAD900888A75 /* InProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InProgressView.swift; sourceTree = "<group>"; };
@@ -4146,10 +4148,10 @@
 		4569D3F225DC1BEC00CDC3E2 /* Create Shipping Label */ = {
 			isa = PBXGroup;
 			children = (
+				DED7E4D026E9ACE100525B25 /* Package */,
 				DE19BB1B26C6910500AB70D9 /* Customs */,
 				4569D3F325DC1BFF00CDC3E2 /* ShippingLabelFormViewModelTests.swift */,
 				45B98E1E25DECC1C00A1232B /* ShippingLabelAddressFormViewModelTests.swift */,
-				45DB7075261623410064A6CF /* ShippingLabelPackageItemViewModelTests.swift */,
 				45AF9DA4265CEA89001EB794 /* ShippingLabelCarriersViewModelTests.swift */,
 				45AF9DA9265CEAA3001EB794 /* ShippingLabelCarrierRowViewModelTests.swift */,
 				CCE4CD162667EBB100E09FD4 /* ShippingLabelPaymentMethodsViewModelTests.swift */,
@@ -6311,6 +6313,15 @@
 			path = ShippingLabelPackageItem;
 			sourceTree = "<group>";
 		};
+		DED7E4D026E9ACE100525B25 /* Package */ = {
+			isa = PBXGroup;
+			children = (
+				45DB7075261623410064A6CF /* ShippingLabelPackageItemViewModelTests.swift */,
+				DED7E4CE26E9ACDC00525B25 /* ShippingLabelPackageDetailsViewModelTests.swift */,
+			);
+			path = Package;
+			sourceTree = "<group>";
+		};
 		DEE6437426D87C2D00888A75 /* Print Customs Form */ = {
 			isa = PBXGroup;
 			children = (
@@ -8065,6 +8076,7 @@
 				02BC5AA524D27F8900C43326 /* ProductVariationFormViewModel+UpdatesTests.swift in Sources */,
 				D8736B5122EB69E300A14A29 /* OrderDetailsViewModelTests.swift in Sources */,
 				02C0CD2E23B5E3AE00F880B1 /* DefaultImageServiceTests.swift in Sources */,
+				DED7E4CF26E9ACDC00525B25 /* ShippingLabelPackageDetailsViewModelTests.swift in Sources */,
 				02E4FD812306AA890049610C /* StatsTimeRangeBarViewModelTests.swift in Sources */,
 				6856D2A5C2076F5BF14F2C11 /* KeyboardStateProviderTests.swift in Sources */,
 				6856D806DE7DB61522D54044 /* NSMutableAttributedStringHelperTests.swift in Sources */,
