@@ -75,7 +75,7 @@ final class EditAddressFormViewModel: ObservableObject {
     /// Creates a view model to be used when selecting a country
     ///
     func createCountryViewModel() -> CountrySelectorViewModel {
-        CountrySelectorViewModel(siteID: siteID, countries: countriesResultsController.fetchedObjects)
+        CountrySelectorViewModel(siteID: siteID, countries: countriesResultsController.fetchedObjects, selectedCountry: country)
     }
 
     /// Update the address remotely and invoke a completion block when finished
@@ -165,6 +165,37 @@ private extension EditAddressFormViewModel {
                 return .done(enabled: originalAddress != fields.toAddress())
             }
             .assign(to: &$navigationTrailingItem)
+    }
+        firstName = originalAddress.firstName
+        lastName = originalAddress.lastName
+        email = originalAddress.email ?? ""
+        phone = originalAddress.phone ?? ""
+
+        company = originalAddress.company ?? ""
+        address1 = originalAddress.address1
+        address2 = originalAddress.address2 ?? ""
+        city = originalAddress.city
+        postcode = originalAddress.postcode
+    }
+
+    var addressFromFields: Address {
+        Address(firstName: firstName,
+                lastName: lastName,
+                company: company.isEmpty ? nil : company,
+                address1: address1,
+                address2: company.isEmpty ? nil : company,
+                city: city,
+                state: originalAddress.state, // TODO: replace with local value
+                postcode: postcode,
+                country: originalAddress.country, // TODO: replace with local value
+                phone: phone.isEmpty ? nil : phone,
+                email: email.isEmpty ? nil : email)
+    }
+
+    /// Figures out the stored country object based on the `originalAddress` country code.
+    ///
+    var country: Yosemite.Country? {
+        countriesResultsController.fetchedObjects.first { $0.code == originalAddress.country }
     }
 
     /// Fetches countries from storage, If there are no stored countries, trigger a sync request.

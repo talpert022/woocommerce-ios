@@ -31,9 +31,9 @@ final class CountrySelectorViewModel: FilterListSelectorViewModelable, Observabl
     ///
     private let siteID: Int64
 
-    init(siteID: Int64, countries: [Country]) {
+    init(siteID: Int64, countries: [Country], selectedCountry: Country? = nil) {
         self.siteID = siteID
-        self.command = CountrySelectorCommand(countries: countries)
+        self.command = CountrySelectorCommand(countries: countries, selected: selectedCountry)
     }
 }
 
