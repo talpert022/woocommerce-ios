@@ -55,8 +55,11 @@ struct ShippingLabelPackageList: View {
                 .navigationTitle(Localization.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarItems(trailing: Button(action: {
+                    // Wait a bit for the package list screen to be dismissed.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        viewModel.confirmPackageSelection()
+                    }
                     presentation.wrappedValue.dismiss()
-                    viewModel.confirmPackageSelection()
                 }, label: {
                     Text(Localization.doneButton)
                 }))

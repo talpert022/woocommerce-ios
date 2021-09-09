@@ -275,10 +275,7 @@ extension ShippingLabelPackageItemViewModel {
         let newTotalWeight = isPackageWeightEdited ? totalWeight : ""
         let newPackage = ShippingLabelPackageInfo(packageID: newPackageID, totalWeight: newTotalWeight, productIDs: orderItems.map { $0.productOrVariationID })
 
-        // Wait a bit for the package list screen to be dismissed.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [unowned self] in
-            self.onPackageSwitch(self.selectedPackageID, newPackage)
-        }
+        onPackageSwitch(selectedPackageID, newPackage)
     }
 }
 
