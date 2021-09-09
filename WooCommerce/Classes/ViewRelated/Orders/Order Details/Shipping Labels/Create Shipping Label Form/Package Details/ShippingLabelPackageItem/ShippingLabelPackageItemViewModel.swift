@@ -100,7 +100,7 @@ final class ShippingLabelPackageItemViewModel: ObservableObject {
          formatter: CurrencyFormatter = CurrencyFormatter(currencySettings: ServiceLocator.currencySettings),
          weightUnit: String? = ServiceLocator.shippingSettingsService.weightUnit) {
         self.order = order
-        self.orderItems = order.items
+        self.orderItems = orderItems
         self.currency = order.currency
         self.currencyFormatter = formatter
         self.weightUnit = weightUnit
