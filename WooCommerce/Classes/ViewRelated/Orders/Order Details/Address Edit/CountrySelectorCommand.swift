@@ -34,7 +34,7 @@ final class CountrySelectorCommand: ObservableListSelectorCommand {
     }
 
     func isSelected(model: Country) -> Bool {
-        model == selected
+        model.code == selected?.code // I'm only comparing country codes because states can be unsorted
     }
 
     func configureCell(cell: BasicTableViewCell, model: Country) {
