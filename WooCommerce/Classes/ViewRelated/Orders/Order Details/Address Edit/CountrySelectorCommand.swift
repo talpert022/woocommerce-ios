@@ -17,7 +17,7 @@ final class CountrySelectorCommand: ObservableListSelectorCommand {
 
     /// Current selected country
     ///
-    private(set) var selected: Country?
+    @Published private(set) var selected: Country?
 
     /// Navigation bar title
     ///

@@ -55,6 +55,10 @@ final class EditAddressFormViewModel: ObservableObject {
     ///
     @Published var fields = FormFields()
 
+    /// Tracks the current selected country
+    ///
+    private let selectedCountry = CurrentValueSubject<Yosemite.Country?, Never>(nil)
+
     /// Trigger to perform any one time setups.
     ///
     let onLoadTrigger: PassthroughSubject<Void, Never> = PassthroughSubject()
@@ -75,7 +79,7 @@ final class EditAddressFormViewModel: ObservableObject {
     /// Creates a view model to be used when selecting a country
     ///
     func createCountryViewModel() -> CountrySelectorViewModel {
-        CountrySelectorViewModel(siteID: siteID, countries: countriesResultsController.fetchedObjects, selectedCountry: nil)
+        CountrySelectorViewModel(countries: countriesResultsController.fetchedObjects, selected: selectedCountry)
     }
 
     /// Update the address remotely and invoke a completion block when finished
